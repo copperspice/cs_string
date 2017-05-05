@@ -29,7 +29,7 @@ class LIB_CS_STRING_EXPORT CsStringIterator
       using difference_type   = int;
       using value_type        = CsChar;
       using pointer           = CsChar *;
-      using reference         = CsChar &;
+      using reference         = CsChar;
       using iterator_category = std::random_access_iterator_tag;
 
       CsStringIterator() = default;
@@ -56,18 +56,18 @@ class LIB_CS_STRING_EXPORT CsStringIterator
       CsStringIterator operator++(int);
 
       CsStringIterator operator-(int x) const;
-      int operator-(CsStringIterator iter) const;
+      int operator-(CsStringIterator other) const;
       CsStringIterator &operator--();
       CsStringIterator operator--(int);
 
    private:
-      explicit CsStringIterator(v_iter iter);
+      explicit CsStringIterator(v_iter data);
 
       typename std::pair<v_iter, v_iter> codePointRange() const;
       v_iter codePointBegin() const;
       v_iter codePointEnd() const;
 
-      v_iter m_data;
+      v_iter m_iter;
 
       friend class CsBasicString<E, A>;
 };
@@ -75,13 +75,13 @@ class LIB_CS_STRING_EXPORT CsStringIterator
 template <typename E, typename A>
 CsChar CsStringIterator<E,A>::operator*() const
 {
-   return E::getCodePoint(m_data);
+   return E::getCodePoint(m_iter);
 }
 
 template <typename E, typename A>
 CsChar CsStringIterator<E,A>::operator->() const
 {
-    return E::getCodePoint(m_data);
+    return E::getCodePoint(m_iter);
 }
 
 template <typename E, typename A>
@@ -95,89 +95,105 @@ CsChar CsStringIterator<E,A>:: operator[](int x) const
 template <typename E, typename A>
 bool CsStringIterator <E,A>::operator!=(const CsStringIterator &other) const
 {
-   return m_data != other.m_data;
+   return m_iter != other.m_iter;
 }
 
 template <typename E, typename A>
 bool CsStringIterator <E,A>::operator==(const CsStringIterator &other) const
 {
-   return m_data == other.m_data;
+   return m_iter == other.m_iter;
 }
 
 template <typename E, typename A>
 bool CsStringIterator <E,A>::operator<(const CsStringIterator &other) const
 {
-   return m_data < other.m_data;
+   return m_iter < other.m_iter;
 }
 
 template <typename E, typename A>
 bool CsStringIterator <E,A>::operator<=(const CsStringIterator &other) const
 {
-   return m_data <= other.m_data;
+   return m_iter <= other.m_iter;
 }
 
 template <typename E, typename A>
 bool CsStringIterator <E,A>::operator>(const CsStringIterator &other) const
 {
-   return m_data > other.m_data;
+   return m_iter > other.m_iter;
 }
 
 template <typename E, typename A>
 bool CsStringIterator <E,A>::operator>=(const CsStringIterator &other) const
 {
-   return m_data >= other.m_data;
+   return m_iter >= other.m_iter;
 }
 
 // math
 template <typename E, typename A>
 CsStringIterator<E,A> &CsStringIterator<E,A>::operator+=(int x)
 {
-   m_data += E::walk(x, m_data);
+   m_iter += E::walk(x, m_iter);
 
    return *this;
 }
 template <typename E, typename A>
 CsStringIterator<E,A> &CsStringIterator<E,A>::operator-=(int x)
 {
-   m_data += E::walk(-x, m_data);
+   m_iter += E::walk(-x, m_iter);
    return *this;
 }
 
 template <typename E, typename A>
 CsStringIterator<E,A> CsStringIterator<E,A>::operator+(int x) const
 {
-   auto iter = m_data + E::walk(x, m_data);
+   auto iter = m_iter + E::walk(x, m_iter);
    return CsStringIterator(iter);
 }
 
 template <typename E, typename A>
 CsStringIterator<E,A> &CsStringIterator<E,A>::operator++()
 {
-   m_data += E::walk(1, m_data);
+   m_iter += E::walk(1, m_iter);
    return *this;
 }
 
 template <typename E, typename A>
 CsStringIterator<E,A> CsStringIterator<E,A>::operator++(int)
 {
-   CsStringIterator iter = *this;
-   m_data += E::walk(1, m_data);
+   CsStringIterator retval = *this;
+   m_iter += E::walk(1, m_iter);
 
-   return iter;
+   return retval;
 }
 
 template <typename E, typename A>
 CsStringIterator<E,A> CsStringIterator<E,A>::operator-(int x) const
 {
-   auto iter = m_data + E::walk(-x, m_data);
-   return CsStringIterator(iter);
+   auto retval = m_iter + E::walk(-x, m_iter);
+   return CsStringIterator(retval);
 }
 
 template <typename E, typename A>
-int CsStringIterator <E,A>::operator-(CsStringIterator iter) const
+int CsStringIterator <E,A>::operator-(CsStringIterator other) const
 {
-   // broom - add method in encoding
-   int retval = m_data - iter.m_data;
+   int retval = 0;
+
+   CsStringIterator a = *this;
+   CsStringIterator b = other;
+
+   if (a < b) {
+
+      while (a != b) {
+         ++a;
+         --retval;
+      }      
+
+   } else {
+      while (a != b) {
+         ++b;
+         ++retval;
+      }
+   }   
 
    return retval;
 }
@@ -185,42 +201,42 @@ int CsStringIterator <E,A>::operator-(CsStringIterator iter) const
 template <typename E, typename A>
 CsStringIterator<E,A> &CsStringIterator<E,A>::operator--()
 {
-   m_data += E::walk(-1, m_data);
+   m_iter+= E::walk(-1, m_iter);
    return *this;
 }
 
 template <typename E, typename A>
 CsStringIterator<E,A> CsStringIterator<E,A>::operator--(int)
 {
-   CsStringIterator iter = *this;
-   m_data += E::walk(-1, m_data);
+   CsStringIterator retval = *this;
+   m_iter += E::walk(-1, m_iter);
 
-   return iter;
+   return retval;
 }
 
 // private methods
 template <typename E, typename A>
-CsStringIterator<E,A>::CsStringIterator(v_iter iter)
+CsStringIterator<E,A>::CsStringIterator(v_iter data)
 {
-   m_data = iter;
+   m_iter = data;
 }
 
 template <typename E, typename A>
 auto CsStringIterator<E,A>::codePointRange() const -> typename std::pair<v_iter, v_iter>
 {
-   return std::make_pair(m_data, m_data + E::walk(1, m_data));
+   return std::make_pair(m_iter, m_iter + E::walk(1, m_iter));
 }
 
 template <typename E, typename A>
 auto CsStringIterator<E,A>::codePointBegin() const -> v_iter
 {
-   return m_data;
+   return m_iter;
 }
 
 template <typename E, typename A>
 auto CsStringIterator<E,A>::codePointEnd() const -> v_iter
 {
-   return m_data + E::walk(1, m_data);
+   return m_iter + E::walk(1, m_iter);
 }
 
 }

@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <iterator>
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
@@ -36,12 +37,13 @@ using CsString_utf16 = CsBasicString<utf16>;
 template <typename E, typename A>
 class CsBasicString
 {
-   using dummy = void (CsBasicString::*)(float);
-
    public:
       using size_type      = ssize_t;
       using const_iterator = CsStringIterator<E, A>;
       using iterator       = CsStringIterator<E, A>;
+
+      using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+      using reverse_iterator        = std::reverse_iterator<iterator>;
 
       static constexpr const size_type npos = -1;
 
@@ -69,9 +71,9 @@ class CsBasicString
       CsBasicString(const T &str, const A &a = A());
 
       // for an array of chars
-      template <typename T, typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString(const T &str, const A &a = A(), dummy = 0);
+      template <int N>
+      CsBasicString(const char (&str)[N], const A &a = A());
+
 
       // for a const char * and char *
       template <typename T, typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -79,16 +81,15 @@ class CsBasicString
       CsBasicString(const T &str, size_type size, const A &a = A());
 
       // for an array of chars
-      template <typename T, typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString(const T &str, size_type size, const A &a = A(), dummy = 0);
+      template <int N>
+      CsBasicString(const char (&str)[N], size_type size, const A &a = A());
 
       // substring constructors
       CsBasicString(const CsBasicString &str, size_type indexStart, const A &a = A());
       CsBasicString(const CsBasicString &str, size_type indexStart, size_type size, const A &a = A());
 
       // fixed size string with same single code point
-      CsBasicString(size_type size, CsChar c, const A &a = A());
+      CsBasicString(size_type count, CsChar c, const A &a = A());
 
       // unknown encoding
       // CsBasicString(std::initializer_list<char> str, const A &a = A());
@@ -149,7 +150,7 @@ class CsBasicString
       CsBasicString &append(const CsBasicString &str, size_type indexStart, size_type size = npos);
 
       CsBasicString &append(CsChar c);
-      CsBasicString &append(size_type size, CsChar c);
+      CsBasicString &append(size_type count, CsChar c);
 
       template <typename Iterator>
       CsBasicString &append(Iterator begin, Iterator end);
@@ -160,9 +161,8 @@ class CsBasicString
       CsBasicString &append(const T &str, size_type size);
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &append(const T &str, size_type size, dummy = 0);
+      template <int N>
+      CsBasicString &append(const char (&str)[N], size_type size);
 
 
       // for a const char * and char *
@@ -171,9 +171,8 @@ class CsBasicString
       CsBasicString &append(const T &str);
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &append(const T &str, dummy = 0);
+      template <int N>
+      CsBasicString &append(const char (&str)[N]);
 
       // unknown encoding
       // CsBasicString &append(std::initializer_list<char> str);
@@ -185,7 +184,7 @@ class CsBasicString
       // template <typename T>
       // CsBasicString &append(const T &view, size_type indexStart, size_type size)
 
-      CsBasicString &assign(size_type size, CsChar c);
+      CsBasicString &assign(size_type count, CsChar c);
       CsBasicString &assign(const CsBasicString &str);
       CsBasicString &assign(const CsBasicString &str, size_type indexStart, size_type size = npos);
       CsBasicString &assign(CsBasicString &&str);
@@ -229,9 +228,8 @@ class CsBasicString
       size_type find(const T &str, size_type indexStart, size_type size) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find(const T &str, size_type indexStart, size_type size, dummy = 0) const;
+      template <int N>
+      size_type find(const char (&str)[N], size_type indexStart, size_type size) const;
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -239,9 +237,8 @@ class CsBasicString
       size_type find(const T &str, size_type indexStart = 0) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find(const T &str, size_type indexStart = 0, dummy = 0) const;
+      template <int N>
+      size_type find(const char (&str)[N], size_type indexStart = 0) const;
 
       size_type find(CsChar c, size_type indexStart = 0) const;
 
@@ -257,9 +254,8 @@ class CsBasicString
       size_type find_first_of(const T &str, size_type indexStart, size_type size) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_first_of(const T &str, size_type indexStart, size_type size, dummy = 0) const;
+      template <int N>
+      size_type find_first_of(const char (&str)[N], size_type indexStart, size_type size) const;
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -267,9 +263,8 @@ class CsBasicString
       size_type find_first_of(const T &str, size_type indexStart = 0) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_first_of(const T &str, size_type indexStart = 0, dummy = 0) const;
+      template <int N>
+      size_type find_first_of(const char (&str)[N], size_type indexStart = 0) const;
 
       size_type find_first_of(CsChar c, size_type indexStart = 0) const;
 
@@ -285,9 +280,8 @@ class CsBasicString
       size_type find_last_of(const T &str, size_type indexStart, size_type size) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_last_of(const T &str, size_type indexStart, size_type size, dummy = 0) const;
+      template <int N>
+      size_type find_last_of(const char (&str)[N], size_type indexStart, size_type size) const;
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -295,9 +289,8 @@ class CsBasicString
       size_type find_last_of(const T &str, size_type indexStart = npos) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_last_of(const T &str, size_type indexStart = npos, dummy = 0) const;
+      template <int N>
+      size_type find_last_of(const char (&str)[N], size_type indexStart = npos) const;
 
       size_type find_last_of(CsChar c, size_type indexStart = npos) const;
 
@@ -313,9 +306,8 @@ class CsBasicString
       size_type find_first_not_of(const T &str, size_type indexStart, size_type size) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_first_not_of(const T &str, size_type indexStart, size_type size, dummy = 0) const;
+      template <int N>
+      size_type find_first_not_of(const char (&str)[N], size_type indexStart, size_type size) const;
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -323,11 +315,10 @@ class CsBasicString
       size_type find_first_not_of(const T &strc, size_type indexStart = 0) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_first_not_of(const T &str, size_type indexStart = 0, dummy = 0) const;
+      template <int N>
+      size_type find_first_not_of(const char (&str)[N], size_type indexStart = 0) const;
 
-      size_type find_first_not_of(CsChar ch, size_type indexStart= 0) const;
+      size_type find_first_not_of(CsChar c, size_type indexStart= 0) const;
 
       // requires stringview
       // size_type find_first_not_of(CsBasicStringView view, size_type indexStart = 0) const;
@@ -341,9 +332,8 @@ class CsBasicString
       size_type find_last_not_of(const T &str, size_type indexStart, size_type size) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_last_not_of(const T &str, size_type indexStart, size_type size, dummy = 0) const;
+      template <int N>
+      size_type find_last_not_of(const char (&str)[N], size_type indexStart, size_type size) const;
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -351,9 +341,8 @@ class CsBasicString
       size_type find_last_not_of(const T &str, size_type indexStart = npos) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type find_last_not_of(const T &str, size_type indexStart = npos, dummy = 0) const;
+      template <int N>
+      size_type find_last_not_of(const char (&str)[N], size_type indexStart = npos) const;
 
       size_type find_last_not_of(CsChar c, size_type indexStart = npos) const;
 
@@ -369,9 +358,8 @@ class CsBasicString
       size_type rfind(const T &str, size_type indexStart, size_type size) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type rfind(const T &str, size_type indexStart, size_type size, dummy = 0) const;
+      template <int N>
+      size_type rfind(const char (&str)[N], size_type indexStart, size_type size) const;
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -379,9 +367,8 @@ class CsBasicString
       size_type rfind(const T &str, size_type indexStart = npos) const;
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      size_type rfind(const T &str, size_type indexStart = npos, dummy = 0) const;
+      template <int N>
+      size_type rfind(const char (&str)[N], size_type indexStart = npos) const;
 
       size_type rfind(CsChar c, size_type indexStart = npos) const;
 
@@ -391,7 +378,7 @@ class CsBasicString
       CsChar front() const;
       A getAllocator() const;
 
-      CsBasicString &insert(size_type indexStart, size_type size, CsChar c);
+      CsBasicString &insert(size_type indexStart, size_type count, CsChar c);
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -399,9 +386,8 @@ class CsBasicString
       CsBasicString &insert(size_type indexStart, const T &str);
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &insert(size_type indexStart, const T &str, dummy = 0);
+      template <int N>
+      CsBasicString &insert(size_type indexStart, const char (&str)[N]);
 
       // for a const char * and char *
       template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -409,18 +395,26 @@ class CsBasicString
       CsBasicString &insert(size_type indexStart, const T &str, size_type size);
 
       // for an array of chars
-      template <typename T,  typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &insert(size_type indexStart, const T &str, size_type size, dummy = 0);
+      template <int N>
+      CsBasicString &insert(size_type indexStart, const char (&str)[N], size_type size);
 
       CsBasicString &insert(size_type indexStart, const CsBasicString &str);
 
       CsBasicString &insert(size_type indexStart, const CsBasicString &str,
-                  size_type srcStart, size_type srcLength = npos);
+                  size_type srcStart, size_type srcSize = npos);
 
       iterator insert(const_iterator posStart, CsChar c);
-      iterator insert(const_iterator posStart, size_type size, CsChar c);
-      iterator insert(const_iterator posStart, const CsString &str);
+      iterator insert(const_iterator posStart, size_type count, CsChar c);
+      iterator insert(const_iterator posStart, const CsBasicString &str);
+
+      // for a const char * and char *
+      template <typename T,  typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
+                  std::is_same<T, char *>::value>::type>
+      iterator insert(const_iterator posStart, const T &str, size_type size);
+
+      // for an array of chars
+      template <int N>
+      iterator insert(const_iterator posStart, const char (&str)[N], size_type size);
 
       template <typename Iterator>
       iterator insert(const_iterator posStart, Iterator begin, Iterator end);
@@ -433,7 +427,7 @@ class CsBasicString
 
       // requires stringview
       // template <typename T>
-      // CsBasicString &insert(size_type indexStart, const T &view, size_type srcStart, size_type srcLength == npos)
+      // CsBasicString &insert(size_type indexStart, const T &view, size_type srcStart, size_type srcSize == npos)
 
       void pop_back();
       void push_back(CsChar c);
@@ -441,8 +435,8 @@ class CsBasicString
       CsBasicString &replace(size_type indexStart, size_type size, const CsBasicString &str);
       CsBasicString &replace(const_iterator first, const_iterator last, const CsBasicString &str);
 	
-      CsBasicString &replace(size_type indexStart, size_type count, const CsBasicString &str,
-                  size_type pos2, size_type count2 = npos);
+      CsBasicString &replace(size_type indexStart, size_type size, const CsBasicString &str,
+                  size_type srcStart, size_type srcSize = npos);
 
       template <class Iterator>
       CsBasicString &replace(const_iterator first1, const_iterator last1, Iterator first2, Iterator last2);
@@ -453,9 +447,8 @@ class CsBasicString
       CsBasicString &replace(size_type indexStart, size_type size, const T &str, size_type srcSize);
 
       // for an array of chars
-      template <typename T, typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &replace(size_type indexStart, size_type size, const T &str, size_type srcSize, dummy = 0);
+      template <int N>
+      CsBasicString &replace(size_type indexStart, size_type size, const char (&str)[N], size_type srcSize);
 
       // for a const char * and char *
       template <typename T, typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -463,9 +456,8 @@ class CsBasicString
       CsBasicString &replace(const_iterator first, const_iterator last, const T &str, size_type srcSize);
 
       // for an array of chars
-      template <typename T, typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &replace(const_iterator first, const_iterator last, const T &str, size_type srcSize, dummy = 0);
+      template <int N>
+      CsBasicString &replace(const_iterator first, const_iterator last, const char (&str)[N], size_type srcSize);
 
       // for a const char * and char *
       template <typename T, typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -473,9 +465,8 @@ class CsBasicString
       CsBasicString &replace(size_type indexStart, size_type size, const T &str);
 
       // for an array of chars
-      template <typename T, typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &replace(size_type indexStart, size_type size, const T &str, dummy = 0);
+      template <int N>
+      CsBasicString &replace(size_type indexStart, size_type size, const char (&str)[N]);
 
       // for a const char * and char *
       template <typename T, typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
@@ -483,29 +474,28 @@ class CsBasicString
       CsBasicString &replace(const_iterator first, const_iterator last, const T &str);
 
       // for an array of chars
-      template <typename T, typename = typename std::enable_if<std::is_array<T>::value &&
-                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
-      CsBasicString &replace(const_iterator first, const_iterator last, const T &str, dummy = 0);
+      template <int N>
+      CsBasicString &replace(const_iterator first, const_iterator last, const char (&str)[N]);
 
-      CsBasicString &replace(size_type indexStart, size_type size, size_type srcSize, CsChar c);
-      CsBasicString &replace(const_iterator first, const_iterator last, size_type srcSize, CsChar c);
+      CsBasicString &replace(size_type indexStart, size_type size, size_type count, CsChar c);
+      CsBasicString &replace(const_iterator first, const_iterator last, size_type count, CsChar c);
       	
       // unknown encoding
       // CsBasicString &replace(const_iterator first, const_iterator last, std::initializer_list<CsChar> str);
       	
       // requires stringview
-      // basic_string& replace(size_type pos, size_type count, CsBasicStringView view);
+      // basic_string& replace(size_type pos, size_type size, CsBasicStringView view);
       	
       // requires stringview
       // basic_string& replace(const_iterator first, const_iterator last, CsBasicStringView view);
       	
       template <class T>
-      CsBasicString &replace(size_type indexStart, size_type size, const T &t,
-                  size_type srcindexStart, size_type srcSize = npos);
+      CsBasicString &replace(size_type indexStart, size_type size, const T &str,
+                  size_type srcStart, size_type srcSize = npos);
 
       template <class T>
-      CsBasicString &replace(const_iterator first, const_iterator last, const T &t,
-                  size_type srcindexStart, size_type srcSize = npos);
+      CsBasicString &replace(const_iterator first, const_iterator last, const T &str,
+                  size_type srcStart, size_type srcSize = npos);
 
       void resize(size_type size);
       void resize(size_type size, CsChar c);
@@ -522,7 +512,6 @@ class CsBasicString
       CsBasicString substr(size_type indexStart = 0, size_type size = npos) const;
       void swap(CsBasicString &str);
 
-
       // ** iterators
       const_iterator begin() const;
       const_iterator cbegin() const;
@@ -530,11 +519,11 @@ class CsBasicString
       const_iterator end() const;
       const_iterator cend() const;
 
-      // const_reverse_iterator rbegin() const;         // pending implementation
-      // const_reverse_iterator crbegin() const;
+      const_reverse_iterator rbegin() const;
+      const_reverse_iterator crbegin() const;
 
-      // const_reverse_iterator rend() const;
-      // const_reverse_iterator crend() const;
+      const_reverse_iterator rend() const;
+      const_reverse_iterator crend() const;
 
       // returns const ptr to the raw data
       const typename E::storage_unit *constData() const
@@ -572,6 +561,10 @@ CsBasicString<E, A>::CsBasicString(const T &str, const A &a)
 #endif
 
    // str is a const char *
+   if (str == nullptr) {
+      return;
+   }
+
    const char *c = str;
 
    while (*c != 0) {
@@ -581,11 +574,11 @@ CsBasicString<E, A>::CsBasicString(const T &str, const A &a)
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A>::CsBasicString(const T &str, const A &a, dummy)
+template <int N>
+CsBasicString<E, A>::CsBasicString(const char (&str)[N], const A &a)
    : m_string(1, 0, a)
 {
-   // broom - make this safe (find which encoding the compiler is using, convert str from X to E)
+   // make this safe (find which encoding the compiler is using, convert str from X to E)
 
    // str is an array of chars
    const char *c = str;
@@ -606,6 +599,9 @@ CsBasicString<E, A>::CsBasicString(const T &str, size_type size, const A &a)
 #endif
 
    // str is a const char *
+   if (str == nullptr) {
+      return;
+   }
 
    for (size_type x = 0; x < size; ++x) {
       E::insert(m_string, m_string.end() - 1, str[x]);
@@ -613,11 +609,11 @@ CsBasicString<E, A>::CsBasicString(const T &str, size_type size, const A &a)
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A>::CsBasicString(const T &str, size_type size, const A &a, dummy)
+template <int N>
+CsBasicString<E, A>::CsBasicString(const char (&str)[N], size_type size, const A &a)
    : m_string(1, 0, a)
 {
-   // broom - make this safe
+   // make this safe
 
    for (size_type x = 0; x < size; ++x) {
       E::insert(m_string, m_string.end() - 1, str[x]);
@@ -628,8 +624,14 @@ template <typename E, typename A>
 CsBasicString<E, A>::CsBasicString(const CsBasicString &str, size_type indexStart, const A &a)
    : m_string(1, 0, a)
 {
-   auto iter1 = begin() + indexStart;
-   auto iter2 = end();
+   size_type stringLen = str.size();
+
+   if (indexStart > stringLen)  {
+      indexStart = stringLen;
+   }
+
+   auto iter1 = str.begin() + indexStart;
+   auto iter2 = str.end();
 
    append(iter1, iter2);
 }
@@ -638,17 +640,27 @@ template <typename E, typename A>
 CsBasicString<E, A>::CsBasicString(const CsBasicString &str, size_type indexStart, size_type size, const A &a)
    : m_string(1, 0, a)
 {
-   auto iter1 = begin() + indexStart;
+   size_type stringLen = str.size();
+
+   if (indexStart > stringLen)  {
+      indexStart = stringLen;
+   }
+
+   if (size < 0 || indexStart + size > stringLen)  {
+      size = stringLen - indexStart;
+   }
+
+   auto iter1 = str.begin() + indexStart;
    auto iter2 = iter1 + size;
 
    append(iter1, iter2);
 }
 
 template <typename E, typename A>
-CsBasicString<E, A>::CsBasicString(size_type size, CsChar c, const A &a)
+CsBasicString<E, A>::CsBasicString(size_type count, CsChar c, const A &a)
    : m_string(1, 0, a)
 {
-   E::insert(m_string, m_string.end() - 1, c, size);
+   E::insert(m_string, m_string.end() - 1, c, count);
 
 }
 
@@ -677,7 +689,7 @@ template <typename E, typename A>
 template <typename T>
 CsBasicString<E, A> &CsBasicString<E, A>::operator=(const T &str)
 {
-   // for a const char * and char * -or- an array of chars
+   // str is a const char * -or- an array of chars
 
    m_string.clear();
    m_string.push_back(0);
@@ -705,7 +717,7 @@ template <typename E, typename A>
 template <typename T>
 CsBasicString<E, A> &CsBasicString<E, A>::operator+=(const T &str)
 {
-   // for a const char * and char * -or- an array of chars
+   // str is a const char * -or- an array of chars
 
    append(str);
    return *this;;
@@ -725,14 +737,16 @@ CsChar CsBasicString<E, A>::operator[](size_type index) const
 template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::append(const CsBasicString &str)
 {
-   E::append(m_string, str.m_string);
+   insert(end(), str);
    return *this;
 }
 
 template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::append(const CsBasicString &str, size_type indexStart, size_type size)
 {
-   E::append(m_string, str.m_string, indexStart, size);
+   size_type stringLen = this->size();
+
+   insert(stringLen, str, indexStart, size);
    return *this;
 }
 
@@ -744,9 +758,9 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(CsChar c)
 }
 
 template <typename E, typename A>
-CsBasicString<E, A> &CsBasicString<E, A>::append(size_type size, CsChar c)
+CsBasicString<E, A> &CsBasicString<E, A>::append(size_type count, CsChar c)
 {
-   E::insert(m_string, m_string.end() - 1, c, size);
+   E::insert(m_string, m_string.end() - 1, c, count);
    return *this;
 }
 
@@ -770,6 +784,10 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str, size_type size)
 #endif
 
    // str is a const char *
+   if (str == nullptr) {
+      return *this;
+   }
+
    const char *c = str;
 
    int count = 0;
@@ -785,11 +803,10 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str, size_type size)
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str, size_type size, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::append(const char (&str)[N], size_type size )
 {
-   // broom - make this safe
-
+   // make this safe
    const char *c = str;
 
    int count = 0;
@@ -813,6 +830,10 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str)
 #endif
 
    // str is a const char *
+   if (str == nullptr) {
+      return *this;
+   }
+
    const char *c = str;
 
    while (*c != 0) {
@@ -824,11 +845,10 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str)
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::append(const char (&str)[N])
 {
-   // broom - make this safe
-
+   // make this safe
    const char *c = str;
 
    while (*c != 0) {
@@ -840,10 +860,10 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str, dummy)
 }
 
 template <typename E, typename A>
-CsBasicString<E, A> &CsBasicString<E, A>::assign(size_type size, CsChar c)
+CsBasicString<E, A> &CsBasicString<E, A>::assign(size_type count, CsChar c)
 {
    clear();
-   append(size, c);
+   append(count, c);
 
    return *this;
 }
@@ -879,7 +899,7 @@ template <typename E, typename A>
 template <typename T>
 CsBasicString<E, A> &CsBasicString<E, A>::assign(const T &str, size_type size)
 {
-   // for a const char * and char * -or- an array of chars
+   // str is a const char * -or- an array of chars
 
    clear();
    append(str, size);
@@ -891,7 +911,7 @@ template <typename E, typename A>
 template <typename T>
 CsBasicString<E, A> &CsBasicString<E, A>::assign(const T &str)
 {
-   // for a const char * and char * -or- an array of chars
+   // str is a const char * -or- an array of chars
 
    clear();
    append(str);
@@ -938,6 +958,16 @@ bool CsBasicString<E, A>::empty() const
 template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::erase(size_type indexStart, size_type size)
 {
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      indexStart = stringLen;
+   }
+
+   if (size < 0 || indexStart + size > stringLen)  {
+      size = stringLen - indexStart;
+   }
+
    auto iter1 = begin() + indexStart;
    auto iter2 = iter1 + size;
 
@@ -968,6 +998,12 @@ typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::erase(const_it
 template <typename E, typename A>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(CsChar c, size_type indexStart) const
 {
+   size_type stringLen = this->size();
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
    size_type retval = indexStart;
    auto iter        = begin() + indexStart;
 
@@ -986,21 +1022,120 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(CsChar c, size
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, size_type indexStart, size_type size) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, size_type indexStart,
+                  size_type size) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
+   if (str == nullptr || *str == '\0') {
 
-   // pending implementation
+      if (indexStart > stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+
+      if (*iter == str[0])  {
+
+         size_type count   = 1;
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str  + 1;
+
+         while (text_iter != end() && *pattern_iter != '\0' && count < size)  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++ count;
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (*pattern_iter == '\0' || count == size) {
+            // found a match
+            return retval;
+         }
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, size_type indexStart, size_type size, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const char (&str)[N], size_type indexStart,
+                  size_type size) const
 {
-   // pending implementation
+   // make this one safe
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+
+      if (*iter == str[0])  {
+
+         size_type count   = 1;
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str  + 1;
+
+         while (text_iter != end() && *pattern_iter != '\0' && count < size)  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++ count;
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (*pattern_iter == '\0' || count == size) {
+            // found a match
+            return retval;
+         }
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
@@ -1014,9 +1149,19 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, 
 #endif
 
    // str is a const char *
+   size_type stringLen = this->size();
 
    if (str == nullptr || *str == '\0') {
-      return 0;
+
+      if (indexStart > stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
    }
 
    size_type retval = indexStart;
@@ -1054,13 +1199,23 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, 
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, size_type indexStart, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const char (&str)[N], size_type indexStart) const
 {
-   // broom - make this safe
+   // make this safe
+   size_type stringLen = this->size();
 
    if (str == nullptr || *str == '\0') {
-      return 0;
+
+      if (indexStart > stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
    }
 
    size_type retval = indexStart;
@@ -1100,8 +1255,19 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, 
 template <typename E, typename A>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const CsBasicString &str, size_type indexStart) const
 {
+   size_type stringLen = this->size();
+
    if (str.empty()) {
-      return 0;
+
+      if (indexStart > stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
    }
 
    size_type retval = indexStart;
@@ -1146,21 +1312,74 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(CsCha
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const T &str, size_type indexStart, size_type size) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const T &str, size_type indexStart,
+                  size_type size) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   if (str == nullptr || *str == '\0' || indexStart >= this->size()) {
+      return -1;
+   }
 
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
 
-   // pending implementation
+   while (iter != end())   {
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const T &str, size_type indexStart, size_type size, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const char (&str)[N], size_type indexStart,
+                  size_type size) const
 {
-   // pending implementation
+   // make this safe
+   if (str == nullptr || *str == '\0' || indexStart >= this->size()) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
@@ -1169,26 +1388,94 @@ template <typename E, typename A>
 template <typename T,  typename>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const T &str, size_type indexStart) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   if (str == nullptr || *str == '\0' || indexStart >= this->size()) {
+      return -1;
+   }
 
-   // pending implementation
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' )  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++pattern_iter;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const T &str, size_type indexStart, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const char (&str)[N],
+                  size_type indexStart) const
 {
-   // pending implementation
+   // make this safe
+   if (str == nullptr || *str == '\0' || indexStart >= this->size()) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' )  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++pattern_iter;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const CsBasicString &str, size_type indexStart) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const CsBasicString &str,
+                  size_type indexStart) const
 {
-   // pending implementation
+   if (str.empty() || indexStart >= this->size()) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      for (auto c : str) {
+
+         if (*iter == c) {
+            // found a match
+            return retval;
+         }
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
@@ -1201,21 +1488,99 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(CsChar
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const T &str, size_type indexStart, size_type size) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const T &str, size_type indexStart,
+                  size_type size) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
+   if (str == nullptr || *str == '\0' || indexStart >= stringLen) {
+      return -1;
+   }
 
-   // pending implementation
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const T &str, size_type indexStart, size_type size, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const char (&str)[N],
+                  size_type indexStart, size_type size) const
 {
-   // pending implementation
+   // make this safe
+
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0' || indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+   }
 
    return -1;
 }
@@ -1224,26 +1589,131 @@ template <typename E, typename A>
 template <typename T,  typename>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const T &str, size_type indexStart) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
-   // pending implementation
+   if (str == nullptr || *str == '\0' || indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0')  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++pattern_iter;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const T &str, size_type indexStart, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const char (&str)[N],
+                  size_type indexStart) const
 {
-   // pending implementation
+   // make this safe
+
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0' || indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0')  {
+
+         if (*iter == *pattern_iter) {
+            // found a match
+            return retval;
+         }
+
+         ++pattern_iter;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const CsBasicString &str, size_type indexStart) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const CsBasicString &str,
+                  size_type indexStart) const
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (str.empty() || indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      for (CsChar c : str) {
+
+         if (*iter == c) {
+            // found a match
+            return retval;
+         }
+      }
+   }
 
    return -1;
 }
@@ -1251,6 +1721,10 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const 
 template <typename E, typename A>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(CsChar c, size_type indexStart) const
 {
+   if (indexStart >= this->size()) {
+      return -1;
+   }
+
    size_type retval = indexStart;
    auto iter        = begin() + indexStart;
 
@@ -1269,49 +1743,258 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(C
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const T &str, size_type indexStart, size_type size) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const T &str,
+                  size_type indexStart, size_type size) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
+   if (str == nullptr || *str == '\0') {
 
-   // pending implementation
+      if (indexStart >= stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0' || count == size) {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+
+      ++iter;
+      ++retval;
+   }
+
+   return -1;
+}
+
+template <typename E, typename A>
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const char (&str)[N],
+                  size_type indexStart, size_type size) const
+{
+   // make this safe
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart >= stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0' || count == size) {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const T &str, size_type indexStart, size_type size, dummy) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const T &str,
+                  size_type indexStart) const
 {
-   // pending implementation
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
 
-   return -1;
-}
-
-template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const T &str, size_type indexStart) const
-{
    // str is a const char *
+   size_type stringLen = this->size();
 
-   // pending implementation
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart >= stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0')  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0') {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const T &str, size_type indexStart, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const char (&str)[N],
+                  size_type indexStart) const
 {
-   // pending implementation
+   // make this safe
+
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart >= stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   while (iter != end())   {
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0')  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0') {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const CsBasicString &str, size_type indexStart) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(const CsBasicString &str,
+                  size_type indexStart) const
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (str.empty()) {
+
+      if (indexStart >= stringLen) {
+         return -1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval = indexStart;
+   auto iter        = begin() + indexStart;
+
+   auto str_end     = str.end();
+
+   while (iter != end())   {
+      const_iterator pattern_iter = str.begin();
+
+      while (pattern_iter != str_end)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++pattern_iter;
+      }
+
+      if (pattern_iter == str_end) {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+
+      ++iter;
+      ++retval;
+   }
 
    return -1;
 }
@@ -1319,28 +2002,151 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(c
 template <typename E, typename A>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(CsChar c, size_type indexStart) const
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (indexStart >= stringLen) {
+      return -1;
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter != c)  {
+         return retval;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const T &str, size_type indexStart, size_type size) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const T &str, size_type indexStart,
+                  size_type size) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
+   if (str == nullptr || *str == '\0') {
 
-   // pending implementation
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen - 1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0' || count == size) {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const T &str, size_type indexStart, size_type size, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const char (&str)[N],
+                  size_type indexStart, size_type size) const
 {
-   // pending implementation
+   // make this safe
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen - 1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      size_type count   = 0;
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0' && count < size)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++count;
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0' || count == size) {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+   }
 
    return -1;
 }
@@ -1349,26 +2155,167 @@ template <typename E, typename A>
 template <typename T,  typename>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const T &str, size_type indexStart) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
-   // pending implementation
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen - 1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0')  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0') {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const T &str, size_type indexStart, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const char (&str)[N],
+                  size_type indexStart) const
 {
-   // pending implementation
+   // make this safe
+
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen - 1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      auto pattern_iter = str;
+
+      while (*pattern_iter != '\0')  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++pattern_iter;
+      }
+
+      if (*pattern_iter == '\0') {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const CsBasicString &str, size_type indexStart) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(const CsBasicString &str,
+                  size_type indexStart) const
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (str.empty()) {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen - 1;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   const_iterator str_end = str.end();
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      const_iterator pattern_iter = str.begin();
+
+      while (pattern_iter != str_end)  {
+
+         if (*iter == *pattern_iter) {
+            // found a match between the current character in m_string and the pattern
+            break;
+         }
+
+         ++pattern_iter;
+      }
+
+      if (pattern_iter == str_end) {
+         // current charactor in m_string did not match the pattern
+         return retval;
+      }
+   }
 
    return -1;
 }
@@ -1376,28 +2323,161 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(co
 template <typename E, typename A>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(CsChar c, size_type indexStart) const
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter == c)  {
+         return retval;
+      }
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
 template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str, size_type indexStart, size_type size) const
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str, size_type indexStart,
+                  size_type size) const
 {
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
    // str is a const char *
+   size_type stringLen = this->size();
 
+   if (str == nullptr || *str == '\0') {
 
-   // pending implementation
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter == str[0])  {
+
+         size_type count   = 1;
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str  + 1;
+
+         while (text_iter != end() && *pattern_iter != '\0' && count < size)  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++ count;
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (*pattern_iter == '\0' || count == size) {
+            // found a match
+            return retval;
+         }
+      }
+
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str, size_type indexStart, size_type size, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const char (&str)[N],
+                  size_type indexStart, size_type size) const
 {
-   // pending implementation
+   // make this safe
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter == str[0])  {
+
+         size_type count   = 1;
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str  + 1;
+
+         while (text_iter != end() && *pattern_iter != '\0' && count < size)  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++ count;
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (*pattern_iter == '\0' || count == size) {
+            // found a match
+            return retval;
+         }
+      }
+
+   }
 
    return -1;
 }
@@ -1406,18 +2486,123 @@ template <typename E, typename A>
 template <typename T,  typename>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str, size_type indexStart) const
 {
-   // str is a const char *
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
 
-   // pending implementation
+   // str is a const char *
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter == str[0])  {
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str  + 1;
+
+         while (text_iter != end() && *pattern_iter != '\0')  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (*pattern_iter == '\0') {
+            // found a match
+            return retval;
+         }
+      }
+
+   }
 
    return -1;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str, size_type indexStart, dummy) const
+template <int N>
+typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const char (&str)[N],
+                  size_type indexStart) const
 {
-   // pending implementation
+   // make this safe
+   size_type stringLen = this->size();
+
+   if (str == nullptr || *str == '\0') {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter == str[0])  {
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str  + 1;
+
+         while (text_iter != end() && *pattern_iter != '\0')  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (*pattern_iter == '\0') {
+            // found a match
+            return retval;
+         }
+      }
+
+   }
 
    return -1;
 }
@@ -1425,7 +2610,60 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str,
 template <typename E, typename A>
 typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const CsBasicString &str, size_type indexStart) const
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (str.empty()) {
+
+      if (indexStart > stringLen || indexStart == -1) {
+         return stringLen;
+      } else {
+         return indexStart;
+      }
+   }
+
+   size_type retval;
+   const_iterator iter;
+
+   if (indexStart >= 0 && indexStart < stringLen) {
+      retval = indexStart + 1;
+      iter   = begin() + indexStart + 1;
+
+   } else {
+      retval = stringLen;
+      iter   = end();
+
+   }
+
+   const_iterator str_end = str.end();
+
+   while (iter != begin())   {
+      --iter;
+      --retval;
+
+      if (*iter == str[0])  {
+
+         auto text_iter    = iter + 1;
+         auto pattern_iter = str.begin() + 1;
+
+         while (text_iter != end() && pattern_iter != str_end)  {
+
+            if (*text_iter == *pattern_iter)  {
+               ++text_iter;
+               ++pattern_iter;
+
+            } else {
+               break;
+
+            }
+         }
+
+         if (pattern_iter == str_end) {
+            // found a match
+            return retval;
+         }
+      }
+
+   }
 
    return -1;
 }
@@ -1443,10 +2681,16 @@ A CsBasicString<E, A>::getAllocator() const
 }
 
 template <typename E, typename A>
-CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, size_type size, CsChar c)
+CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, size_type count, CsChar c)
 {
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
+
    const_iterator iter = begin() + indexStart;
-   E::insert(m_string, iter.codePointBegin(), c, size);
+   E::insert(m_string, iter.codePointBegin(), c, count);
 
    return *this;
 }
@@ -1458,7 +2702,17 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &
 #ifndef CS_STRING_ALLOW_UNSAFE
    static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
 #endif
+
    // str is a const char *
+   if (str == nullptr || *str == '\0') {
+      return *this;
+   }
+
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
 
    const_iterator iter = begin() + indexStart;
    const char *c = str;
@@ -1476,10 +2730,16 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &str, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const char (&str)[N])
 {
-   // broom - make this safe
+   // make this safe
+
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
 
    const_iterator iter = begin() + indexStart;
    const char *c = str;
@@ -1503,7 +2763,17 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &
 #ifndef CS_STRING_ALLOW_UNSAFE
    static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
 #endif
+
    // str is a const char *
+   if (str == nullptr || *str == '\0') {
+      return *this;
+   }
+
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
 
    const_iterator iter = begin() + indexStart;
    const char *c = str;
@@ -1524,10 +2794,16 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &str, size_type size, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const char (&str)[N], size_type size)
 {
-   // broom - make this safe
+   // make this safe
+
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
 
    const_iterator iter = begin() + indexStart;
    const char *c = str;
@@ -1550,6 +2826,12 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &
 template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const CsBasicString &str)
 {
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
+
    const_iterator iter = begin() + indexStart;
 
    for (CsChar c : str) {
@@ -1564,13 +2846,26 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const CsB
 
 template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const CsBasicString &str,
-                  size_type srcStart, size_type srcLength)
+                  size_type srcStart, size_type srcSize)
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::insert index out of range");
+   }
 
    const_iterator iter = begin() + indexStart;
 
+   const_iterator srcIter_begin = str.begin() + srcStart;
+   const_iterator srcIter_end   = srcIter_begin + srcSize;
 
+   for (auto srcIter = srcIter_begin; srcIter != srcIter_end; ++srcIter) {
+      // *srcIter is a CsChar
+      str_iter iter_tmp = E::insert(m_string, iter.codePointBegin(), *srcIter);
+
+      iter = CsStringIterator<E, A>(iter_tmp);
+      ++iter;
+   }
 
    return *this;
 }
@@ -1578,17 +2873,19 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const CsB
 template <typename E, typename A>
 typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, CsChar c)
 {
-   return E::insert(m_string, posStart.codePointBegin(), c);
+   str_iter iter_tmp = E::insert(m_string, posStart.codePointBegin(), c);
+   return CsStringIterator<E, A>(iter_tmp);
 }
 
 template <typename E, typename A>
-typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, size_type size, CsChar c)
+typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, size_type count, CsChar c)
 {
-   return E::insert(m_string, posStart.codePointBegin(), c, size);
+   str_iter iter_tmp = E::insert(m_string, posStart.codePointBegin(), c, count);
+   return CsStringIterator<E, A>(iter_tmp);
 }
 
 template <typename E, typename A>
-typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, const CsString &str)
+typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, const CsBasicString &str)
 {
    const_iterator iter = posStart;
    int count = 0;
@@ -1606,8 +2903,69 @@ typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterato
 }
 
 template <typename E, typename A>
+template <typename T,  typename>
+typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, const T &str,
+                  size_type size)
+{
+#ifndef CS_STRING_ALLOW_UNSAFE
+   static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
+#endif
+
+   // str is a const char *
+   if (str == nullptr || *str == '\0') {
+      return posStart;
+   }
+
+   const_iterator iter = posStart;
+   const char *c = str;
+
+   int count = 0;
+
+   while (*c != 0 && count < size) {
+      str_iter iter_tmp = E::insert(m_string, iter.codePointBegin(), *c);
+
+      iter = CsStringIterator<E, A>(iter_tmp);
+      ++iter;
+
+      ++c;
+      ++count;
+   }
+
+   return (iter - count);
+}
+
+template <typename E, typename A>
+template <int N>
+typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart,
+                  const char (&str)[N], size_type size)
+{
+   // make this safe
+   if (str == nullptr || *str == '\0') {
+      return posStart;
+   }
+
+   const_iterator iter = posStart;
+   const char *c = str;
+
+   int count = 0;
+
+   while (*c != 0 && count < size) {
+      str_iter iter_tmp = E::insert(m_string, iter.codePointBegin(), *c);
+
+      iter = CsStringIterator<E, A>(iter_tmp);
+      ++iter;
+
+      ++c;
+      ++count;
+   }
+
+   return (iter - count);
+}
+
+template <typename E, typename A>
 template <typename Iterator>
-typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart, Iterator begin, Iterator end)
+typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterator posStart,
+                  Iterator begin, Iterator end)
 {
    const_iterator iter = posStart;
    int count = 0;
@@ -1629,6 +2987,10 @@ typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterato
 template <typename E, typename A>
 void CsBasicString<E, A>::pop_back()
 {
+   if (empty())  {
+      return;
+   }
+
    const_iterator iter = --end();
    erase(iter);
 }
@@ -1642,6 +3004,12 @@ void CsBasicString<E, A>::push_back(CsChar c)
 template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const CsBasicString &str)
 {
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
+
    const_iterator iter_begin = begin() + indexStart;
    const_iterator iter_end   = iter_begin + size;
 
@@ -1655,46 +3023,86 @@ template <typename E, typename A>
 CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last, const CsBasicString &str)
 {
    auto iter = erase(first, last);
-   iter      = insert(iter, str);
+   insert(iter, str);
 
-   return iter;
+   return *this;
 }
 
 template <typename E, typename A>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type count, const CsBasicString &str,
-                  size_type pos2, size_type count2)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const CsBasicString &str,
+                  size_type srcStart, size_type srcSize)
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
+
+   const_iterator iter_begin    = begin() + indexStart;
+   const_iterator iter_end      = iter_begin + size;
+
+   const_iterator srcIter_begin = str.begin() + srcStart;
+   const_iterator srcIter_end   = srcIter_begin + srcSize;
+
+   auto iter = erase(iter_begin, iter_end);
+   insert(iter, srcIter_begin, srcIter_end);
+
+   return *this;
 }
 
 template <typename E, typename A>
 template <class Iterator>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first1, const_iterator last1, Iterator first2, Iterator last2)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first1, const_iterator last1,
+                  Iterator first2, Iterator last2)
 {
    auto iter = erase(first1, last1);
-   iter      = insert(iter, first2, last2);
+   insert(iter, first2, last2);
 
-   return iter;
+   return *this;
 }
 
 template <typename E, typename A>
 template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const T &str, size_type srcSize)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size,
+                  const T &str, size_type srcSize)
 {
    // str is a const char *
 
-   // pending implementation
+   size_type stringLen = this->size();
 
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
+
+   const_iterator iter_begin = begin() + indexStart;
+   const_iterator iter_end   = iter_begin + size;
+
+   auto iter = erase(iter_begin, iter_end);
+   insert(iter, str, srcSize);
+
+   return *this;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const T &str, size_type srcSize, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size,
+                  const char (&str)[N], size_type srcSize)
 {
-   // broom - make this safe
+   // make this safe
 
-   // pending implementation
+   size_type stringLen = this->size();
 
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
+
+   const_iterator iter_begin = begin() + indexStart;
+   const_iterator iter_end   = iter_begin + size;
+
+   auto iter = erase(iter_begin, iter_end);
+   insert(iter, str, srcSize);
+
+   return *this;
 }
 
 template <typename E, typename A>
@@ -1704,19 +3112,23 @@ CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_it
 {
    // str is a const char *
 
-   // pending implementation
+   auto iter = erase(first, last);
+   insert(iter, str, srcSize);
 
+   return *this;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
+template <int N>
 CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last,
-                  const T &str, size_type srcSize, dummy)
+                  const char (&str)[N], size_type srcSize )
 {
-   // broom - make this safe
+   // make this safe
 
-   // pending implementation
+   auto iter = erase(first, last);
+   insert(iter, str, srcSize);
 
+   return *this;
 }
 
 template <typename E, typename A>
@@ -1724,6 +3136,12 @@ template <typename T,  typename>
 CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const T &str)
 {
    // str is a const char *
+
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
 
    const_iterator iter_begin = begin() + indexStart;
    const_iterator iter_end   = iter_begin + size;
@@ -1735,10 +3153,14 @@ CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_typ
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const T &str, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const char (&str)[N])
 {
-   // broom - make this safe
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
 
    const_iterator iter_begin = begin() + indexStart;
    const_iterator iter_end   = iter_begin + size;
@@ -1756,50 +3178,80 @@ CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_it
    // str is a const char *
 
    auto iter = erase(first, last);
-   iter      = insert(iter, str);
+   insert(iter, str);
 
-   return iter;
+   return *this;
 }
 
 template <typename E, typename A>
-template <typename T,  typename>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last, const T &str, dummy)
+template <int N>
+CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last,
+                  const char (&str)[N])
 {
-   // broom - make this safe
-
    auto iter = erase(first, last);
-   iter      = insert(iter, str);
+   insert(iter, str);
 
-   return iter;
+   return *this;
 }
 
 template <typename E, typename A>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, size_type srcSize, CsChar c)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size,
+                  size_type count, CsChar c)
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
+
+   const_iterator iter_begin = begin() + indexStart;
+   const_iterator iter_end   = iter_begin + size;
+
+   auto iter = erase(iter_begin, iter_end);
+   insert(iter, count, c);
+
+   return *this;
 }
 
 template <typename E, typename A>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last, size_type srcSize, CsChar c)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last,
+                  size_type count, CsChar c)
 {
-   // pending implementation
-}
+   auto iter = erase(first, last);
+   insert(iter, count, c);
 
+   return *this;
+}
 
 template <typename E, typename A>
 template <class T>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const T &t,
-                  size_type srcindexStart, size_type srcSize)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_type size, const T &str,
+                  size_type srcStart, size_type srcSize)
 {
-   // pending implementation
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      throw std::out_of_range("CsString::replace index out of range");
+   }
+
+   const_iterator iter_begin = begin() + indexStart;
+   const_iterator iter_end   = iter_begin + size;
+
+   auto iter = erase(iter_begin, iter_end);
+   insert(iter, str, srcStart, srcSize);
+
+   return *this;
 }
 
 template <typename E, typename A>
 template <class T>
-CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last, const T &t,
-                  size_type srcindexStart, size_type srcSize)
+CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_iterator last, const T &str,
+                  size_type srcStart, size_type srcSize)
 {
-   // pending implementation
+   auto iter = erase(first, last);
+   insert(iter, str, srcStart, srcSize);
+
+   return *this;
 }
 
 template <typename E, typename A>
@@ -1848,13 +3300,35 @@ auto CsBasicString<E, A>::length()  const  -> size_type
 template <typename E, typename A>
 void CsBasicString<E, A>::resize(size_type size)
 {
-   // pending implementation
+   size_type stringLen = this->size();
+   size_type count     = size - stringLen;
+
+   CsChar c('\0');
+
+   if (count > 0) {
+      append(count, c);
+
+   } else if (count < 0) {
+      auto end   = this->end();
+      auto begin = end + (size - stringLen);
+
+      erase(begin, end);
+   }
 }
 
 template <typename E, typename A>
 void CsBasicString<E, A>::resize(size_type size, CsChar c)
 {
-   // pending implementation
+   size_type stringLen = this->size();
+   size_type count     = size - stringLen;
+
+   if (count > 0) {
+      append(count, c);
+
+   } else if (count < 0) {
+      erase(size, -count);
+
+   }
 }
 
 template <typename E, typename A>
@@ -1866,6 +3340,16 @@ void CsBasicString<E, A>::shrink_to_fit()
 template <typename E, typename A>
 CsBasicString<E, A> CsBasicString<E, A>::substr(size_type indexStart, size_type size) const
 {
+   size_type stringLen = this->size();
+
+   if (indexStart > stringLen)  {
+      indexStart = stringLen;
+   }
+
+   if (size < 0 || indexStart + size > stringLen)  {
+      size = stringLen - indexStart;
+   }
+
    auto iter1 = begin() + indexStart;
    auto iter2 = iter1 + size;
 
@@ -1906,6 +3390,30 @@ typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::cend() const
    return CsStringIterator<E, A> (m_string.cend() - 1);
 }
 
+template <typename E, typename A>
+typename CsBasicString<E, A>::const_reverse_iterator CsBasicString<E, A>::rbegin() const
+{
+   return const_reverse_iterator(end());
+}
+
+template <typename E, typename A>
+typename CsBasicString<E, A>::const_reverse_iterator CsBasicString<E, A>::crbegin() const
+{
+   return const_reverse_iterator(cend());
+}
+
+template <typename E, typename A>
+typename CsBasicString<E, A>::const_reverse_iterator CsBasicString<E, A>::rend() const
+{
+   return const_reverse_iterator(begin());
+}
+
+template <typename E, typename A>
+typename CsBasicString<E, A>::const_reverse_iterator CsBasicString<E, A>::crend() const
+{
+   return const_reverse_iterator(cbegin());
+}
+
 // functions
 template <typename E_FROM, typename A_FROM, typename E_TO, typename A_TO>
 void convert(const CsBasicString<E_FROM, A_FROM> &str_from, CsBasicString<E_TO, A_TO> &str_to)
@@ -1943,7 +3451,7 @@ template <typename E, typename A, typename T, typename = typename std::enable_if
                   std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
 bool operator==(const CsBasicString<E, A> &str1, const T &str2)
 {
-   // broom - make this safe
+   // make this safe
 
    auto iter1 = str1.begin();
    auto end1  = str1.end();
@@ -2024,6 +3532,26 @@ CsBasicString<E, A> operator+(CsChar c, CsBasicString<E, A> &&str)
 {
    str.insert(0, 1, c);
    return str;
+}
+
+template <typename E, typename A, typename T, typename = typename std::enable_if<std::is_array<T>::value &&
+                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
+CsBasicString<E, A> operator+(const CsBasicString<E, A> &str1, const T &str2)
+{
+   CsBasicString<E, A> retval = str1;
+   retval.append(str2);
+
+   return retval;
+}
+
+template <typename E, typename A, typename T, typename = typename std::enable_if<std::is_array<T>::value &&
+                  std::is_same<char, typename std::remove_extent<T>::type>::value>::type>
+CsBasicString<E, A> operator+(const T &str1, const CsBasicString<E, A> &str2)
+{
+   CsBasicString<E, A> retval = str1;
+   retval.append(str2);
+
+   return retval;
 }
 
 template <typename E1, typename A1, typename E2, typename A2>

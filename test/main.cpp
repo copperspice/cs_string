@@ -50,9 +50,11 @@ int main()
    test_10();
    test_11();
    test_12();
-   test_13();
-   test_14();
-   test_15();
+
+   // currently unused
+   // test_13();
+   // test_14();
+   // test_15();
 
    printf("\n\n");
 
@@ -124,14 +126,21 @@ void test_2()
 
    printf("\n");
 
-   if (ok) {
-      printf("End Unit Test Two - PASSED\n\n");
+   // not safe
+   CsString::CsString str("↴");
 
-   } else {
-      printf("End Unit Test Two - Failed\n\n");
-      g_unitTest = false;
+   printf("\nIn this next test CsString() is passed a multi-byte string literal.\n"
+            "This is not safe since the constructor will assume the data is Latin-1, \n"
+            "which in this case is not true. Must be passed as a UCHAR.\n");
 
+   printf("\nString literal ↴ : %s", str.constData());
+   printf("\nUnicode value    : %x  %x  %x \n", str[0].unicode(), str[1].unicode(), str[2].unicode() );
+
+   for (auto c = str.constData(); *c != '\0'; ++c)  {
+      printf("\nRaw numeric value stored in the buffer : %02x", *c);
    }
+
+   printf("\n\n");
 }
 
 void test_3()
@@ -216,7 +225,7 @@ void test_5()
    printf("\n** Unit Test 5\n");
 
    CsString::CsString str1(5, UCHAR('↴'));
-   printf("\nConstructed string with 5 copies of the same 2 byte character: %s", str1.constData());
+   printf("\nConstructed string with 5 copies of the same 3 byte character: %s", str1.constData());
 
    std::vector<CsString::CsChar> v = {'G', 'I', 'N', 'G', 'E', 'R' };
    CsString::CsString str2(v.begin(), v.begin() + 3);
@@ -246,10 +255,6 @@ void test_5()
    if (x1 != 3 || x2 != 24) {
       ok = false;
    }
-
-
-// more finds
-
 
    if (ok) {
       printf("End Unit Test Five - PASSED\n\n");
@@ -320,7 +325,7 @@ void test_7()
    str1.append(UCHAR('↴'));            // 3 bytes
    str1.append(UCHAR('¿'));            // 2 bytes
    str1.append('E');
-   str1.append(UCHAR('𝅘𝅥𝅮'));            // 4 bytes
+   str1.append(UCHAR('𝅘𝅥𝅮'));            // 4 bytes, unicode 01 D1 60
    str1.append('F');
 
    printf("\nOriginal String: %s", str1.constData());
@@ -518,7 +523,7 @@ void test_10()
    printf("\n** Unit Test 10\n");
 
    CsString::CsString_utf16 str1("ABCD");
-   str1.append(UCHAR('↴'));            // 3 bytes     21 B4
+   str1.append(UCHAR('↴'));            // 2 bytes     21 B4
    str1.append(UCHAR('¿'));            // 2 bytes        BF
    str1.append('E');
    str1.append(UCHAR('𝅘𝅥𝅮'));            // 4 bytes  01 D1 60
@@ -554,7 +559,24 @@ void test_11()
    bool ok = true;
    printf("\n** Unit Test 11\n");
 
-printf("\n Open test\n");
+   CsString::CsString str1("ABCD");
+   str1.append(UCHAR('↴'));            // 3 bytes     21 B4
+   printf("\nOriginal string : %s", str1.constData());
+
+   str1.resize(8, UCHAR('¿'));
+   printf("\nResize to 8, passing ¿ : %s", str1.constData());
+
+   str1.resize(7);
+   printf("\nResize new string to 7 : %s", str1.constData());
+
+   str1.resize(3);
+   printf("\nResize new string to 3 : %s", str1.constData());
+
+   printf("\n\n");
+
+   if (str1 != "ABC") {
+      ok = false;
+   }
 
    if (ok) {
       printf("End Unit Test Eleven - PASSED\n\n");
@@ -571,7 +593,36 @@ void test_12()
    bool ok = true;
    printf("\n** Unit Test 12\n");
 
-printf("\n Open test\n");
+   CsString::CsString str1("ABCD");
+   str1.append(UCHAR('↴'));            // 3 bytes     21 B4
+   printf("\nOriginal string : %s", str1.constData());
+
+   // find_first_not_of
+   int pos = str1.find_first_not_of("DAZB");
+   printf("\nFind first not of 'DAZB' no start pos : %d", pos);
+
+   pos = str1.find_first_not_of("B↴", 1);
+   printf("\nFind first not of 'B↴'   start pos 1  : %d", pos);
+
+   printf("\n");
+
+   // find_last_not_of
+   pos = str1.find_last_not_of("E", 3);
+   printf("\nFind last not of 'E'     start pos 3  : %d", pos);
+
+   printf("\n");
+
+   // rfind
+   pos = str1.rfind('D');
+   printf("\nReverse find 'D' no start pos         : %d", pos);
+
+   pos = str1.rfind('D', 3);
+   printf("\nReverse find 'D' start pos 3          : %d", pos);
+
+   pos = str1.rfind('A', 9);
+   printf("\nReverse find 'A' start pos 9          : %d", pos);
+
+   printf("\n\n");
 
    if (ok) {
       printf("End Unit Test Twelve - PASSED\n\n");
@@ -588,7 +639,7 @@ void test_13()
    bool ok = true;
    printf("\n** Unit Test 13\n");
 
-printf("\n Open test\n");
+   // currently unused
 
    if (ok) {
       printf("End Unit Test Thirteen - PASSED\n\n");
@@ -605,7 +656,7 @@ void test_14()
    bool ok = true;
    printf("\n** Unit Test 14\n");
 
-printf("\n Open test\n");
+   // currently unused
 
    if (ok) {
       printf("End Unit Test Fourteen - PASSED\n\n");
@@ -622,9 +673,7 @@ void test_15()
    bool ok = true;
    printf("\n** Unit Test 15\n");
 
-
-printf("\n Open test\n");
-
+   // currently unused
 
    if (ok) {
       printf("End Unit Test Fifteen - PASSED\n\n");
