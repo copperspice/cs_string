@@ -84,6 +84,8 @@ class CsBasicString
       template <int N>
       CsBasicString(const char (&str)[N], size_type size, const A &a = A());
 
+      CsBasicString(const char32_t *str, const A &a = A());
+
       // substring constructors
       CsBasicString(const CsBasicString &str, size_type indexStart, const A &a = A());
       CsBasicString(const CsBasicString &str, size_type indexStart, size_type size, const A &a = A());
@@ -617,6 +619,18 @@ CsBasicString<E, A>::CsBasicString(const char (&str)[N], size_type size, const A
 
    for (size_type x = 0; x < size; ++x) {
       E::insert(m_string, m_string.end() - 1, str[x]);
+   }
+}
+
+template <typename E, typename A>
+CsBasicString<E, A>::CsBasicString(const char32_t *str, const A &a)
+   : m_string(1, 0, a)
+{
+   const char32_t *c = str;
+
+   while (*c != 0) {
+      E::insert(m_string, m_string.end() - 1, *c);
+      ++c;
    }
 }
 

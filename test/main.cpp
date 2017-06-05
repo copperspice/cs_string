@@ -88,7 +88,6 @@ void test_1()
 
 void test_2()
 {
-   bool ok = true;
    printf("\n** Unit Test 2\n");
 
    // CsChar internationalization test
@@ -129,16 +128,27 @@ void test_2()
    // not safe
    CsString::CsString str("↴");
 
-   printf("\nIn this next test CsString() is passed a multi-byte string literal.\n"
+   printf("\nIn test 2B CsString() is passed a multi-byte string literal.\n"
             "This is not safe since the constructor will assume the data is Latin-1, \n"
             "which in this case is not true. Must be passed as a UCHAR.\n");
 
-   printf("\nString literal ↴ : %s", str.constData());
+   printf("\nString literal ↴ : %s   (mangled, 86 is non printable)", str.constData());
    printf("\nUnicode value    : %x  %x  %x \n", str[0].unicode(), str[1].unicode(), str[2].unicode() );
 
    for (auto c = str.constData(); *c != '\0'; ++c)  {
       printf("\nRaw numeric value stored in the buffer : %02x", *c);
    }
+
+   printf("\n");
+
+
+   // 
+   CsString::CsString str2(U"ABCD↴");
+
+   printf("\nIn test 2C CsString() is passed a UTF-32 string literal with a UTF \n" 
+            "specifier. This calls the constructor which takes a const char32_t *\n");
+           
+   printf("\nUTF-32 string literal ABCD↴ : %s", str2.constData());     
 
    printf("\n\n");
 }
@@ -533,7 +543,7 @@ void test_10()
    CsString::CsString str2;
    convert(str1, str2);
 
-   printf("\nString Constructed using UTF16 then convert() to UTF8 : %s", str2.constData());
+   printf("\nString Constructed using UTF-16 then convert() to UTF-8 : %s", str2.constData());
 
    CsString::CsChar c = str1[7];
    printf("\nCsChar 7 (unicode 01 d1 60) : %08x", c.unicode());
@@ -685,4 +695,4 @@ void test_15()
    }
 }
 
-//  CsString &operator=(const CsString &str); where S1 is utf8 and S2 is utf16 -> should be a compile error
+//  CsString &operator=(const CsString &str); where S1 is UTF-8 and S2 is UTF-16 -> should be a compile error
