@@ -946,7 +946,9 @@ CsBasicString<E, A> &CsBasicString<E, A>::assign(Iterator begin, Iterator end)
 template <typename E, typename A>
 CsChar CsBasicString<E, A>::at(size_type index) const
 {
-   const_iterator iter = std::advance(begin(), index);
+   const_iterator iter = begin();
+   std::advance(iter, index);
+
    return *iter;
 }
 
