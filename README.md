@@ -37,6 +37,7 @@ www.copperspice.com/presentations.html
 
 * **Ansel Sermersheim**
 * **Barbara Geller**
+* **Charley Bey**
 
 
 ### License
