@@ -3437,6 +3437,12 @@ void convert(const CsBasicString<E_FROM, A_FROM> &str_from, CsBasicString<E_TO, 
    str_to.assign(str_from.begin(), str_from.end());
 }
 
+template <typename E, typename A>
+void swap(CsBasicString<E, A> &str1, CsBasicString<E, A> &str2)
+{
+   str1.swap(str2);
+}
+
 template <typename E1, typename A1, typename E2, typename A2>
 bool operator==(const CsBasicString<E1, A1> &str1, const CsBasicString<E2, A2> &str2)
 {
