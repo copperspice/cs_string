@@ -43,8 +43,8 @@ class CsBasicString
       using const_iterator = CsStringIterator<E, A>;
       using iterator       = CsStringIterator<E, A>;
 
-      using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-      using reverse_iterator       = std::reverse_iterator<iterator>;
+      using const_reverse_iterator = CsStringReverseIterator<const_iterator>;
+      using reverse_iterator       = CsStringReverseIterator<iterator>;
 
       static constexpr const size_type npos = -1;
 
