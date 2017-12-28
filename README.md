@@ -13,11 +13,10 @@ as UTF-8 or UTF-16, is passed to the CsBasicString template. The following typed
 
 ### System Requirements
 
-To use CsString you will need a C++11 compiler and a C++11 standard library.
+To use CsString you will need a C++14 compiler and a C++14 standard library.
 
-Currently uses the Autotools build system for building and running the unit test suite.
-The library has been tested with clang sanitizer and a major code review.
-
+Currently uses the Autotools build system for building and running the unit test suite. The library has been tested with
+clang sanitizer and a major code review.
 
 ### Documentation
 
@@ -28,20 +27,22 @@ www.copperspice.com/docs/cs_string/index.html
 
 ### Presentations
 
-For additional information refer to our CsString presentations at CppCon 2017:
+Multiple videos discussing Unicode and strings can be found on the following pages:
 
+www.youtube.com/copperspice <br>
 www.copperspice.com/presentations.html
 
 
-### Authors
+### Authors / Contributors
 
 * **Ansel Sermersheim**
 * **Barbara Geller**
 
+
 ### License
 
-This library is released under the BSD 2-clause license. For more information refer to the
-LICENSE file provided with this project.
+This library is released under the BSD 2-clause license. For more information refer to the LICENSE file provided with this
+project.
 
 
 ### References
