@@ -77,13 +77,12 @@ class LIB_CS_STRING_EXPORT CsStringIterator
       CsStringIterator &operator--();
       CsStringIterator operator--(int);
 
-   private:
-      explicit CsStringIterator(v_iter data);
-
       typename std::pair<v_iter, v_iter> codePointRange() const;
       v_iter codePointBegin() const;
       v_iter codePointEnd() const;
 
+   private:
+      explicit CsStringIterator(v_iter data);
       v_iter m_iter;
 
       friend class CsBasicString<E, A>;
@@ -193,7 +192,7 @@ CsStringIterator<E,A> CsStringIterator<E,A>::operator-(size_type x) const
 template <typename E, typename A>
 typename CsStringIterator<E, A>::size_type CsStringIterator <E,A>::operator-(CsStringIterator other) const
 {
-   int retval = 0;
+   size_type retval = 0;
 
    CsStringIterator a = *this;
    CsStringIterator b = other;
