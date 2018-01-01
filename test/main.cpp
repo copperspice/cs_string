@@ -142,13 +142,13 @@ void test_2()
    printf("\n");
 
 
-   // 
+   //
    CsString::CsString str2(U"ABCD↴");
 
-   printf("\nIn test 2C CsString() is passed a UTF-32 string literal with a UTF \n" 
+   printf("\nIn test 2C CsString() is passed a UTF-32 string literal with a UTF \n"
             "specifier. This calls the constructor which takes a const char32_t *\n");
-           
-   printf("\nUTF-32 string literal ABCD↴ : %s", str2.constData());     
+
+   printf("\nUTF-32 string literal ABCD↴ : %s", str2.constData());
 
    printf("\n\n");
 }

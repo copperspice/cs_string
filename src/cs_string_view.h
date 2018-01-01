@@ -39,6 +39,9 @@ class CsBasicStringView
 
       CsBasicStringView() = default;
 
+      CsBasicStringView(const CsBasicStringView &str) = default;
+      CsBasicStringView(CsBasicStringView &&str) = default;
+
       CsBasicStringView(const S &str)
          : m_begin(str.begin()), m_end(str.end())
       { }
@@ -48,10 +51,20 @@ class CsBasicStringView
          : m_begin(begin), m_end(end)
       { }
 
+      // operators
+      CsBasicStringView<S> &operator=(const CsBasicStringView &str) = default;
+      CsBasicStringView<S> &operator=(CsBasicStringView &&str) = default;
+
+      CsChar operator[](size_type index) const;
+
       // methods
       CsChar at(size_type index) const;
       CsChar back() const;
+
+      // broom - hold until implemented, compare(CsBasicStringView str) const;
+
       bool empty() const;
+      bool endsWith(CsBasicStringView str) const;
 
       // ** uses an iterator, returns an iterator
       const_iterator find_fast(CsBasicStringView str) const;
@@ -91,11 +104,16 @@ class CsBasicStringView
       const_iterator rfind_fast(CsBasicStringView str, const_iterator iter_end) const;
 
       CsChar front() const;
-
-      size_type size() const;
       size_type length()  const;
 
+      size_type size() const;
+      bool startsWith(CsBasicStringView str) const;
+
+      CsBasicStringView<S> remove_prefix(size_type size) const;
+      CsBasicStringView<S> remove_suffix(size_type size) const;
+
       CsBasicStringView<S> substr(size_type indexStart = 0, size_type size = npos) const;
+      void swap(CsBasicStringView &str);
 
       // iterators
       iterator begin() {
@@ -159,6 +177,64 @@ class CsBasicStringView
       const_iterator m_end;
 };
 
+// free functions
+
+/* broom
+inline bool operator==(CsBasicStringView &str1, CsBasicStringView &str2)
+{
+   // implement method
+}
+*/
+
+
+/*
+inline bool operator!=(CsBasicStringView &str1, CsBasicStringView &str2)
+{
+   // implement method
+
+   return retval;
+}
+*/
+
+/*
+inline bool operator<(CsBasicStringView &str1, CsBasicStringView &str2)
+{
+   // implement method
+}
+*/
+
+/*
+inline bool operator>(CsBasicStringView &str1, CsBasicStringView &str2)
+{
+   // implement method
+}
+*/
+
+/*
+inline bool operator<=(CsBasicStringView &str1, CsBasicStringView &str2)
+{
+   // implement method
+}
+*/
+
+/*
+bool operator>=(CsBasicStringView &str1, CsBasicStringView &str2)
+{
+   // implement method
+}
+*/
+
+// operators
+template <typename S>
+CsChar CsBasicStringView<S>::operator[](size_type index) const
+{
+   const_iterator iter = begin();
+   std::advance(iter, index);
+
+   return *iter;
+}
+
+// methods
 template <typename S>
 CsChar CsBasicStringView<S>::at(size_type index) const
 {
@@ -174,16 +250,43 @@ CsChar CsBasicStringView<S>::back() const
    return *(--end());
 }
 
+/*
+template <typename S>
+int CsBasicStringView<S>::compare(CsBasicStringView str) const
+{
+   // implement method
+}
+*/
+
 template <typename S>
 bool CsBasicStringView<S>::empty() const
 {
    return (m_begin == m_end);
 }
 
+
+template <typename S>
+bool CsBasicStringView<S>::endsWith(CsBasicStringView<S> str) const
+{
+
+}
+
 template <typename S>
 CsChar CsBasicStringView<S>::front() const
 {
    return *begin();
+}
+
+template <typename S>
+auto CsBasicStringView<S>::length() const -> size_type
+{
+   return size();
+}
+
+template <typename S>
+bool CsBasicStringView<S>::startsWith(CsBasicStringView<S> str) const
+{
+
 }
 
 template <typename S>
@@ -199,9 +302,32 @@ auto CsBasicStringView<S>::size() const -> size_type
 }
 
 template <typename S>
-auto CsBasicStringView<S>::length() const -> size_type
+CsBasicStringView<S> CsBasicStringView<S>::remove_prefix(size_type size) const
 {
-   return size();
+   const_iterator iter_begin = cbegin();
+
+   for (size_type i = 0; i < size && iter_begin != cend(); ++i)  {
+      ++iter_begin;
+   }
+
+   if (iter_begin == cend()) {
+      // index > size()
+      return CsBasicStringView();
+   }
+
+   return CsBasicStringView(iter_begin, cend());
+}
+
+template <typename S>
+CsBasicStringView<S> CsBasicStringView<S>::remove_suffix(size_type size) const
+{
+   const_iterator iter_end = cend();
+
+   for (size_type i = 0; i < size && iter_end != cbegin(); ++i)  {
+      --iter_end;
+   }
+
+   return CsBasicStringView(cbegin(), iter_end);
 }
 
 template <typename S>
@@ -233,6 +359,14 @@ CsBasicStringView<S> CsBasicStringView<S>::substr(size_type indexStart, size_typ
 
    return CsBasicStringView(iter_begin, iter_end);
 }
+
+template <typename S>
+void CsBasicStringView<S>::swap(CsBasicStringView &str)
+{
+   swap(m_begin, str.m_begin);
+   swap(m_end, str.m_end);
+}
+
 
 }
 

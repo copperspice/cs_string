@@ -562,6 +562,8 @@ class CsBasicString
       CsBasicString &replace(const_iterator first, const_iterator last, const T &str,
                   size_type srcStart, size_type srcSize = npos);
 
+      iterator replace(const_iterator iter, const CsBasicString &str);
+
       void resize(size_type size);
       void resize(size_type size, CsChar c);
 
@@ -3642,6 +3644,12 @@ typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(size_type ind
 }
 
 template <typename E, typename A>
+auto CsBasicString<E, A>::length() const -> size_type
+{
+   return size();
+}
+
+template <typename E, typename A>
 void CsBasicString<E, A>::pop_back()
 {
    if (empty())  {
@@ -3912,40 +3920,10 @@ CsBasicString<E, A> &CsBasicString<E, A>::replace(const_iterator first, const_it
 }
 
 template <typename E, typename A>
-auto CsBasicString<E, A>::size_storage() const -> size_type
+typename CsBasicString<E, A>::iterator CsBasicString<E, A>::replace(const_iterator iter, const CsBasicString &str)
 {
-   // remove one for the null terminator
-   return m_string.size() - 1;
-}
-
-template <typename E, typename A>
-auto CsBasicString<E, A>::size_codePoints() const -> size_type
-{
-   size_type retval = 0;
-
-   for (auto item = begin(); item != end(); ++item) {
-      ++retval;
-   }
-
-   return retval;
-}
-
-template <typename E, typename A>
-auto CsBasicString<E, A>::size() const -> size_type
-{
-   size_type retval = 0;
-
-   for (auto item = begin(); item != end(); ++item) {
-      ++retval;
-   }
-
-   return retval;
-}
-
-template <typename E, typename A>
-auto CsBasicString<E, A>::length() const -> size_type
-{
-   return size();
+   auto tmpIter = erase(iter);
+   return insert(tmpIter, str);
 }
 
 template <typename E, typename A>
@@ -3980,6 +3958,37 @@ void CsBasicString<E, A>::resize(size_type size, CsChar c)
       erase(size, -count);
 
    }
+}
+
+template <typename E, typename A>
+auto CsBasicString<E, A>::size_storage() const -> size_type
+{
+   // remove one for the null terminator
+   return m_string.size() - 1;
+}
+
+template <typename E, typename A>
+auto CsBasicString<E, A>::size_codePoints() const -> size_type
+{
+   size_type retval = 0;
+
+   for (auto item = begin(); item != end(); ++item) {
+      ++retval;
+   }
+
+   return retval;
+}
+
+template <typename E, typename A>
+auto CsBasicString<E, A>::size() const -> size_type
+{
+   size_type retval = 0;
+
+   for (auto item = begin(); item != end(); ++item) {
+      ++retval;
+   }
+
+   return retval;
 }
 
 template <typename E, typename A>
