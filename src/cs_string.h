@@ -42,11 +42,11 @@ template <typename E, typename A>
 class CsBasicString
 {
    public:
-      using size_type      = std::ptrdiff_t;
+      using size_type              = std::ptrdiff_t;
+      using value_type             = CsChar;
 
-      using const_iterator = CsStringIterator<E, A>;
-      using iterator       = CsStringIterator<E, A>;
-
+      using const_iterator         = CsStringIterator<E, A>;
+      using iterator               = CsStringIterator<E, A>;
       using const_reverse_iterator = CsStringReverseIterator<const_iterator>;
       using reverse_iterator       = CsStringReverseIterator<iterator>;
 
@@ -237,6 +237,9 @@ class CsBasicString
       iterator erase(const_iterator iter_begin, const_iterator iter_end);
 
       // ** uses an iterator, returns an iterator
+      const_iterator find_fast(CsChar c) const;
+      const_iterator find_fast(CsChar c, const_iterator iter_begin) const;
+
       const_iterator find_fast(const CsBasicString &str) const;
       const_iterator find_fast(const CsBasicString &str, const_iterator iter_begin) const;
 
@@ -267,12 +270,12 @@ class CsBasicString
       template <int N>
       const_iterator find_fast(const char (&str)[N], const_iterator iter_begin) const;
 
-      const_iterator find_fast(CsChar c) const;
-      const_iterator find_fast(CsChar c, const_iterator iter_begin) const;
+      //
+      const_iterator rfind_fast(CsChar c) const;
+      const_iterator rfind_fast(CsChar c, const_iterator iter_end) const;
 
       const_iterator rfind_fast(const CsBasicString &str) const;
       const_iterator rfind_fast(const CsBasicString &str, const_iterator iter_end) const;
-
 
       // ** uses an index, returns an index
       size_type find(const CsBasicString &str, size_type indexStart = 0) const;
@@ -438,6 +441,8 @@ class CsBasicString
 
 
       CsChar front() const;
+      static CsBasicString fromUtf8(const char *str, size_type numOfChars);
+
       A getAllocator() const;
 
       CsBasicString &insert(size_type indexStart, size_type count, CsChar c);
@@ -481,7 +486,7 @@ class CsBasicString
       template <typename Iterator>
       iterator insert(const_iterator posStart, Iterator begin, Iterator end);
 
-      // missing encoding
+      // unknown encoding
       // iterator insert(const_iterator posStart, std::initializer_list<CsChar> str);
 
       template <typename U, typename = typename std::enable_if< std::is_convertible<
@@ -548,11 +553,11 @@ class CsBasicString
       	
       // template <typename U, typename = typename std::enable_if< std::is_convertible<
       //   decltype(*(std::declval<typename U::const_iterator>())), CsChar>::value>::type>
-      // basic_string& replace(size_type pos, size_type size, CsBasicStringView<U> str);
+      // basic_string &replace(size_type pos, size_type size, CsBasicStringView<U> str);
       	
       // template <typename U, typename = typename std::enable_if< std::is_convertible<
       //   decltype(*(std::declval<typename U::const_iterator>())), CsChar>::value>::type>
-      // basic_string& replace(const_iterator first, const_iterator last, CsBasicStringView<U> str);
+      // basic_string &replace(const_iterator first, const_iterator last, CsBasicStringView<U> str);
       	
       template <class T>
       CsBasicString &replace(size_type indexStart, size_type size, const T &str,
@@ -1540,6 +1545,35 @@ typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::find_fast(CsCh
    }
 
    return iter_end;
+}
+
+template <typename E, typename A>
+typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::rfind_fast(CsChar c) const
+{
+   return rfind_fast(c, end());
+}
+
+template <typename E, typename A>
+typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::rfind_fast(CsChar c, const_iterator iter_end) const
+{
+   const_iterator iter_begin = begin();
+
+   if (iter_begin == iter_end) {
+      return end();
+   }
+
+   auto iter = iter_end;
+
+   while (iter != begin())   {
+      --iter;
+
+      if (*iter == c)  {
+         // found a match
+         return iter;
+      }
+   }
+
+   return end();
 }
 
 template <typename E, typename A>
@@ -3277,6 +3311,113 @@ CsChar CsBasicString<E, A>::front() const
 }
 
 template <typename E, typename A>
+CsBasicString<E,A> CsBasicString<E, A>::fromUtf8(const char *str, size_type numOfChars)
+{
+   if (str == nullptr) {
+      return CsBasicString();
+   }
+
+   if (numOfChars < 0) {
+      numOfChars = 0;
+
+      while (str[numOfChars] != 0) {
+         ++numOfChars;
+      }
+   }
+
+   CsBasicString retval;
+
+   int multi_size = 0;
+   char32_t data  = 0;
+
+   for (int i = 0; i < numOfChars; ++i) {
+
+      if ((str[i] & 0x80) == 0) {
+
+         if (multi_size != 0) {
+            // multi byte sequence was too short
+            multi_size = 0;
+            retval.append(UCHAR('\uFFFD'));
+         }
+
+         retval.append(static_cast<char32_t>(str[i]));
+
+
+      } else if ((str[i] & 0xC0) == 0x80) {
+         // continuation char
+
+         data = (data << 6) | (static_cast<char32_t>(str[i]) & 0x3F);
+
+         if (multi_size == 2 && data >= 0x80 && data <= 0x7FF) {
+            multi_size = 0;
+            retval.append(data);
+
+         } else if (multi_size == 3 && data >= 0x800 && data <= 0xFFFF) {
+            multi_size = 0;
+            retval.append(data);
+
+         } else if (multi_size == 4 && data >= 0x10000 && data <= 0x10FFFF) {
+            multi_size = 0;
+            retval.append(data);
+
+         }
+
+      } else if ((str[i] & 0xE0) == 0xC0) {
+         // begin two byte sequence
+
+         if (multi_size != 0) {
+            // preceding multi byte sequence was too short
+            retval.append(UCHAR('\uFFFD'));
+         }
+
+         multi_size = 2;
+         data = static_cast<char32_t>(str[i]) & 0x1F;
+
+      } else if ((str[i] & 0xF0) == 0xE0) {
+         // begin three byte sequence
+
+         if (multi_size != 0) {
+            // preceding multi byte sequence was too short
+            retval.append(UCHAR('\uFFFD'));
+         }
+
+         multi_size = 3;
+         data = static_cast<char32_t>(str[i]) & 0x0F;
+
+      } else if ((str[i] & 0xF8) == 0xF0) {
+        // begin four byte sequence
+
+         if (multi_size != 0) {
+            // preceding multi byte sequence was too short
+            retval.append(UCHAR('\uFFFD'));
+         }
+
+         multi_size = 4;
+         data = static_cast<char32_t>(str[i]) & 0x07;
+
+      } else {
+         // invalid character
+
+         if (multi_size != 0) {
+            // preceding multi byte sequence was too short
+            multi_size = 0;
+            retval.append(UCHAR('\uFFFD'));
+         }
+
+         retval.append(UCHAR('\uFFFD'));
+
+      }
+   }
+
+   if (multi_size != 0) {
+      // invalid character at the end of the string
+      retval.append(UCHAR('\uFFFD'));
+   }
+
+   return retval;
+}
+
+template <typename E, typename A>
 A CsBasicString<E, A>::getAllocator() const
 {
    return m_string.get_allocator();
@@ -3501,7 +3642,7 @@ typename CsBasicString<E, A>::iterator CsBasicString<E, A>::insert(const_iterato
       ++count;
    }
 
-   return (iter - count);
+   return (iter);
 }
 
 template <typename E, typename A>
