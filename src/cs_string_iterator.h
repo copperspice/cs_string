@@ -150,9 +150,9 @@ template <typename E, typename A>
 CsStringIterator<E,A> &CsStringIterator<E,A>::operator+=(size_type x)
 {
    m_iter += E::walk(x, m_iter);
-
    return *this;
 }
+
 template <typename E, typename A>
 CsStringIterator<E,A> &CsStringIterator<E,A>::operator-=(size_type x)
 {
@@ -186,33 +186,23 @@ CsStringIterator<E,A> CsStringIterator<E,A>::operator++(int)
 template <typename E, typename A>
 CsStringIterator<E,A> CsStringIterator<E,A>::operator-(size_type x) const
 {
-   auto retval = m_iter + E::walk(-x, m_iter);
-   return CsStringIterator(retval);
+   auto iter = m_iter + E::walk(-x, m_iter);
+   return CsStringIterator(iter);
 }
 
 template <typename E, typename A>
 typename CsStringIterator<E, A>::size_type CsStringIterator <E,A>::operator-(CsStringIterator other) const
 {
-   size_type retval = 0;
-
    CsStringIterator a = *this;
    CsStringIterator b = other;
 
    if (a < b) {
-
-      while (a != b) {
-         ++a;
-         --retval;
-      }
+      return 0 - E::distance(a.m_iter, b.m_iter);
 
    } else {
-      while (a != b) {
-         ++b;
-         ++retval;
-      }
-   }
+      return E::distance(b.m_iter, a.m_iter);
 
-   return retval;
+   }
 }
 
 template <typename E, typename A>
