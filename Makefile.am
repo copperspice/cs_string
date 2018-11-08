@@ -19,6 +19,22 @@ EXTRA_DIST=LICENSE
 # Do not alter lines above this comment
 include src/Makefile.am
 
+if OSTYPE_LINUX
+AM_LDFLAGS += -avoid-version
+endif
+
+if OSTYPE_BSD
+AM_LDFLAGS += -avoid-version
+endif
+
+if OSTYPE_WIN
+AM_LDFLAGS += -avoid-version
+endif
+
+if OSTYPE_DARWIN
+AM_LDFLAGS += -avoid-version
+endif
+
 #
 DISTCLEANFILES = .version.cpp .version.o .build-stamp-*
 

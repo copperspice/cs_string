@@ -11,7 +11,7 @@ lib_libCsString_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined
 # library
 lib_libCsString_la_SOURCES += src/cs_string.cpp
 
-noinst_HEADERS += src/cs_string.h src/cs_char.h src/cs_string_iterator.h src/cs_encoding.h 
+include_HEADERS = src/cs_string.h src/cs_char.h src/cs_string_iterator.h src/cs_encoding.h
 
 
 # unit test
