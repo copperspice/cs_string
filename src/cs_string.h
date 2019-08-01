@@ -2,12 +2,17 @@
 *
 * Copyright (c) 2017-2019 Barbara Geller
 * Copyright (c) 2017-2019 Ansel Sermersheim
-* All rights reserved.
 *
-* This file is part of CsString
+* This file is part of CsString.
 *
 * CsString is free software, released under the BSD 2-Clause license.
 * For license details refer to LICENSE provided with this project.
+*
+* CopperSpice is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*
+* https://opensource.org/licenses/BSD-2-Clause
 *
 ***********************************************************************/
 
@@ -508,7 +513,7 @@ class CsBasicString
 
       CsBasicString &replace(size_type indexStart, size_type size, const CsBasicString &str);
       CsBasicString &replace(const_iterator first, const_iterator last, const CsBasicString &str);
-	
+
       CsBasicString &replace(size_type indexStart, size_type size, const CsBasicString &str,
                   size_type srcStart, size_type srcSize = npos);
 
@@ -553,18 +558,18 @@ class CsBasicString
 
       CsBasicString &replace(size_type indexStart, size_type size, size_type count, CsChar c);
       CsBasicString &replace(const_iterator first, const_iterator last, size_type count, CsChar c);
-      	
+
       // unknown encoding
       // CsBasicString &replace(const_iterator first, const_iterator last, std::initializer_list<CsChar> str);
-      	
+
       // template <typename U, typename = typename std::enable_if< std::is_convertible<
       //   decltype(*(std::declval<typename U::const_iterator>())), CsChar>::value>::type>
       // basic_string &replace(size_type pos, size_type size, CsBasicStringView<U> str);
-      	
+
       // template <typename U, typename = typename std::enable_if< std::is_convertible<
       //   decltype(*(std::declval<typename U::const_iterator>())), CsChar>::value>::type>
       // basic_string &replace(const_iterator first, const_iterator last, CsBasicStringView<U> str);
-      	
+
       template <class T>
       CsBasicString &replace(size_type indexStart, size_type size, const T &str,
                   size_type srcStart, size_type srcSize = npos);
