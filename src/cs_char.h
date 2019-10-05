@@ -60,6 +60,20 @@ class CsChar
 #endif
       }
 
+      /* UTF-8 characters - Available only with C++20 */
+#ifdef __cpp_char8_t
+      CsChar(char8_t c)
+         : m_char(c)
+      {
+      }
+#endif
+
+      /* UTF-16 characters - as specified at http://eel.is/c++draft/lex.ccon#4 */
+      CsChar(char16_t c)
+        : m_char(c)
+      {
+      }
+
       CsChar(char32_t c)
          : m_char(c)
       {
