@@ -11,6 +11,9 @@ aclocal.m4
 configure
 config.log
 
+# Reserved for build dirs with CMAKE
+[bB]uild/*
+
 /bin/
 /docs/
 /lib/
