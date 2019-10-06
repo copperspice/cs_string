@@ -93,20 +93,20 @@ void test_2()
    // CsChar internationalization test
 
    // unicode 00 42, data type char
-   CsString::CsChar c0   = 'B';
+   CsString::CsChar c0   = u'B';
 
    // unicode 00 BF, data type maybe char or int, compile will return the value
-   CsString::CsChar c127 = '¿';
+   CsString::CsChar c127 = u'¿';
    CsString::CsChar u127 = UCHAR('¿');
 
    // unicode 21 B4, data type int or a compile error, not safe
-   CsString::CsChar c256 = '↴';
+   CsString::CsChar c256 = u'↴';
 
    // unicode 21 B4, data type char32_t, guaranteed to be the proper unicode value
    CsString::CsChar u256 = UCHAR('↴');
 
    // unicode 01 D1 60, data type int or a compile error, not safe
-   CsString::CsChar cX = '𝅘𝅥𝅮';
+   CsString::CsChar cX = U'𝅘𝅥𝅮';
 
    // unicode 01 D1 60, data type char32_t, guaranteed to be the proper unicode value
    CsString::CsChar uX = UCHAR('𝅘𝅥𝅮');

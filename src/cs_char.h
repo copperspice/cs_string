@@ -45,14 +45,14 @@ class CsBasicString;
 class CsChar
 {
    public:
-      CsChar()
+      constexpr CsChar() noexcept
          : m_char(0)
       {
 
       }
 
       template <typename T = int>
-      CsChar(char c)
+      constexpr CsChar(char c) noexcept
          : m_char(static_cast<unsigned char>(c))
       {
 #ifndef CS_STRING_ALLOW_UNSAFE
@@ -60,84 +60,98 @@ class CsChar
 #endif
       }
 
-      CsChar(char32_t c)
+      /* UTF-8 characters - Available only with C++20 */
+#ifdef __cpp_char8_t
+      constexpr CsChar(char8_t c) noexcept
+         : m_char(c)
+      {
+      }
+#endif
+
+      /* UTF-16 characters - as specified at http://eel.is/c++draft/lex.ccon#4 */
+      constexpr CsChar(char16_t c) noexcept
+        : m_char(c)
+      {
+      }
+
+      constexpr CsChar(char32_t c) noexcept
          : m_char(c)
       {
       }
 
-      CsChar(int c)
+      constexpr CsChar(int c) noexcept
          : m_char(c)
       {
       }
 
-      bool operator!=(const CsChar &other) const;
-      bool operator==(const CsChar &other) const;
+      constexpr bool operator!=(const CsChar &other) const noexcept;
+      constexpr bool operator==(const CsChar &other) const noexcept;
 
-      bool operator<(const CsChar &other) const;
-      bool operator<=(const CsChar &other) const;
-      bool operator>(const CsChar &other) const;
-      bool operator>=(const CsChar &other) const;
+      constexpr bool operator<(const CsChar &other) const noexcept;
+      constexpr bool operator<=(const CsChar &other) const noexcept;
+      constexpr bool operator>(const CsChar &other) const noexcept;
+      constexpr bool operator>=(const CsChar &other) const noexcept;
 
-      CsChar &operator=(char c) &;
-      CsChar &operator=(char32_t c) &;
-      CsChar &operator=(CsChar c) &;
+      constexpr CsChar &operator=(char c) & noexcept;
+      constexpr CsChar &operator=(char32_t c) & noexcept;
+      constexpr CsChar &operator=(CsChar c) & noexcept;
 
-      uint32_t unicode() const;
+      constexpr uint32_t unicode() const noexcept;
 
    private:
       uint32_t m_char;
 };
 
 // comparisons
-inline bool CsChar::operator!=(const CsChar &other) const
+inline constexpr bool CsChar::operator!=(const CsChar &other) const noexcept
 {
    return m_char != other.m_char;
 }
 
-inline bool CsChar::operator==(const CsChar &other) const
+inline constexpr bool CsChar::operator==(const CsChar &other) const noexcept
 {
    return m_char == other.m_char;
 }
 
-inline bool CsChar::operator<(const CsChar &other) const
+inline constexpr bool CsChar::operator<(const CsChar &other) const noexcept
 {
    return m_char < other.m_char;
 }
 
-inline bool CsChar::operator<=(const CsChar &other) const
+inline constexpr bool CsChar::operator<=(const CsChar &other) const noexcept
 {
    return m_char <= other.m_char;
 }
 
-inline bool CsChar::operator>(const CsChar &other) const
+inline constexpr bool CsChar::operator>(const CsChar &other) const noexcept
 {
    return m_char > other.m_char;
 }
 
-inline bool CsChar::operator>=(const CsChar &other) const
+inline constexpr bool CsChar::operator>=(const CsChar &other) const noexcept
 {
    return m_char >= other.m_char;
 }
 
-inline CsChar &CsChar::operator=(char c) &
+inline constexpr CsChar &CsChar::operator=(char c) & noexcept
 {
    m_char = c;
    return *this;
 }
 
-inline CsChar &CsChar::operator=(char32_t c) &
+inline constexpr CsChar &CsChar::operator=(char32_t c) & noexcept
 {
    m_char = c;
    return *this;
 }
 
-inline CsChar &CsChar::operator=(CsChar c) &
+inline constexpr CsChar &CsChar::operator=(CsChar c) & noexcept
 {
    m_char = c.m_char;
    return *this;
 }
 
-inline uint32_t CsChar::unicode() const
+inline constexpr uint32_t CsChar::unicode() const noexcept
 {
    return m_char;
 }
