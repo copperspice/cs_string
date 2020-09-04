@@ -8,7 +8,7 @@ cmake_policy(SET CMP0042 NEW)
 project(cs_string)
 
 set(BUILD_MAJOR "1")
-set(BUILD_MINOR "2")
+set(BUILD_MINOR "3")
 set(BUILD_MICRO "0")
 
 set(BUILD_COMPONENTS "cs_string")
