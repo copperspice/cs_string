@@ -5,6 +5,8 @@ cmake_policy(VERSION 3.8..3.20)
 # support using rpath on Mac OS X
 cmake_policy(SET CMP0042 NEW)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
 project(cs_string)
 
 set(BUILD_MAJOR "1")
@@ -12,6 +14,9 @@ set(BUILD_MINOR "3")
 set(BUILD_MICRO "1")
 
 set(BUILD_COMPONENTS "cs_string")
+
+# catch2 set up
+option(BUILD_TESTS "Enables building the Catch2 Unit Tests" OFF)
 
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
@@ -95,7 +100,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(src/string.cmake)
-include(test/test.cmake)
+
+# catch2 set up
+if (BUILD_TESTS)
+   enable_testing()
+   add_subdirectory(test)
+endif()
+
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
    set(TARGETBITS 32)
 else()
