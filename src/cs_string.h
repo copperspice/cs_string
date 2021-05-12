@@ -72,15 +72,6 @@ class CsBasicString
       {
       }
 
-      // copy
-      CsBasicString(const CsBasicString &str) = default;
-      CsBasicString(const CsBasicString &str, const A &a);
-
-      // move
-      CsBasicString(CsBasicString && str) = default;
-      CsBasicString(CsBasicString && str, const A &a);
-
-
       // for a const char * and char *
       template <typename T, typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
                   std::is_same<T, char *>::value>::type>
@@ -95,7 +86,6 @@ class CsBasicString
       template <typename T, typename  = typename std::enable_if<std::is_same<T, const char *>::value ||
                   std::is_same<T, char *>::value>::type>
       CsBasicString(const T &str, size_type size, const A &a = A());
-
 
       // for an array of chars
       template <int N>
@@ -126,6 +116,14 @@ class CsBasicString
       CsBasicString(Iterator begin, Iterator end, const A &a = A());
 
       CsBasicString(const_iterator begin, const_iterator end, const A &a = A());
+
+      // copy constructor
+      CsBasicString(const CsBasicString &str) = default;
+      CsBasicString(const CsBasicString &str, const A &a);
+
+      // move constructor
+      CsBasicString(CsBasicString && str) = default;
+      CsBasicString(CsBasicString && str, const A &a);
 
       // ** operators
       CsBasicString &operator=(const CsBasicString &str) = default;
@@ -1417,7 +1415,7 @@ typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::find_fast(cons
 #endif
 
    // make this safe by treating str as utf8
-   return find_fast(CsBasicString::fromUtf8(str, N - 1), iter_begin);
+   return find_fast(CsBasicString::fromUtf8(str, N-1), iter_begin);
 }
 
 template <typename E, typename A>
@@ -1625,7 +1623,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const char (&s
 #endif
 
    // make this safe by treating str as utf8
-   return find(CsBasicString::fromUtf8(str, N - 1), indexStart);
+   return find(CsBasicString::fromUtf8(str, N-1), indexStart);
 }
 
 template <typename E, typename A>
@@ -1745,7 +1743,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const
 #endif
 
    // make this safe by treating str as utf8
-   return find_first_of(CsBasicString::fromUtf8(str, N - 1), indexStart);
+   return find_first_of(CsBasicString::fromUtf8(str, N-1), indexStart);
 }
 
 template <typename E, typename A>
@@ -1843,7 +1841,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const 
 #endif
 
    // make this safe by treating str as utf8
-   return find_last_of(CsBasicString::fromUtf8(str, N - 1), indexStart);
+   return find_last_of(CsBasicString::fromUtf8(str, N-1), indexStart);
 }
 
 template <typename E, typename A>
@@ -1989,7 +1987,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(c
 #endif
 
    // make this safe by treating str as utf8
-   return find_first_not_of(CsBasicString::fromUtf8(str, N - 1), indexStart);
+   return find_first_not_of(CsBasicString::fromUtf8(str, N-1), indexStart);
 }
 
 template <typename E, typename A>
@@ -2147,7 +2145,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(co
 #endif
 
    // make this safe by treating str as utf8
-   return find_last_not_of(CsBasicString::fromUtf8(str, N - 1), indexStart);
+   return find_last_not_of(CsBasicString::fromUtf8(str, N-1), indexStart);
 }
 
 template <typename E, typename A>
@@ -2306,7 +2304,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const char (&
 #endif
 
    // make this safe by treating str as utf8
-   return rfind(CsBasicString::fromUtf8(str, N - 1), indexStart);
+   return rfind(CsBasicString::fromUtf8(str, N-1), indexStart);
 }
 
 template <typename E, typename A>
@@ -2409,7 +2407,6 @@ CsBasicString<E,A> CsBasicString<E, A>::fromUtf8(const char *str, size_type numO
 
          retval.append(static_cast<char32_t>(str[i]));
 
-
       } else if ((str[i] & 0xC0) == 0x80) {
          // continuation char
 
@@ -2472,7 +2469,6 @@ CsBasicString<E,A> CsBasicString<E, A>::fromUtf8(const char *str, size_type numO
          }
 
          retval.append(UCHAR('\uFFFD'));
-
       }
    }
 
@@ -2946,8 +2942,7 @@ CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_typ
 #endif
 
    // make this safe by treating str as utf8
-   return replace(indexStart, count, CsBasicString::fromUtf8(str, N - 1));
-
+   return replace(indexStart, count, CsBasicString::fromUtf8(str, N-1));
 }
 
 template <typename E, typename A>
@@ -3149,8 +3144,7 @@ void CsBasicString<E, A>::swap(CsBasicString &str)
    m_string.swap(str.m_string);
 }
 
-
-// iterators
+// iterator methods
 template <typename E, typename A>
 typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::begin() const
 {
@@ -3241,6 +3235,8 @@ void swap(CsBasicString<E, A> &str1, CsBasicString<E, A> &str2)
 template <typename E1, typename A1, typename E2, typename A2>
 bool operator==(const CsBasicString<E1, A1> &str1, const CsBasicString<E2, A2> &str2)
 {
+   // E1 and E2 are different
+
    auto iter1 = str1.begin();
    auto iter2 = str2.begin();
 
