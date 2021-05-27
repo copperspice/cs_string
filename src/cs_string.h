@@ -125,6 +125,17 @@ class CsBasicString
       CsBasicString(CsBasicString && str) = default;
       CsBasicString(CsBasicString && str, const A &a);
 
+
+#if defined(__cpp_char8_t)
+      // support new data type added in C++20
+
+      CsBasicString(const char8_t *str, const A &a = A());
+      CsBasicString(const char8_t *str, size_type size, const A &a = A());
+
+      static CsBasicString fromUtf8(const char8_t *str, size_type numOfChars = -1, const A &a = A());
+#endif
+
+
       // ** operators
       CsBasicString &operator=(const CsBasicString &str) = default;
       CsBasicString &operator=(CsBasicString &&str) = default;
@@ -3372,7 +3383,23 @@ bool operator>=(const CsBasicString<E1, A1> &str1, const CsBasicString<E2, A2> &
    return ! (str1 < str2);
 }
 
+#if defined(__cpp_char8_t)
+   // support new data type added in C++20
 
-}
+   template <typename E, typename A>
+   CsBasicString<E, A>::CsBasicString(const char8_t *str, const A &a)
+   {
+      *this = CsBasicString::fromUtf8(str, -1, a);
+   }
+
+   template <typename E, typename A>
+   CsBasicString<E, A>::CsBasicString(const char8_t *str, size_type size, const A &a)
+   {
+      *this = CsBasicString::fromUtf8(str, size, a);
+   }
+#endif
+
+
+}  // namespace
 
 #endif
