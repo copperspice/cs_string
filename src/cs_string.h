@@ -657,68 +657,49 @@ CsBasicString<E, A>::CsBasicString(CsBasicString &&str, const A &a)
 template <typename E, typename A>
 template <typename T, typename>
 CsBasicString<E, A>::CsBasicString(const T &str, const A &a)
-   : m_string(1, 0, a)
 {
 #ifndef CS_STRING_ALLOW_UNSAFE
    static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
 #endif
 
-   // str is a const char *
-   if (str == nullptr) {
-      return;
-   }
-
-   const char *c = str;
-
-   while (*c != 0) {
-      E::insert(m_string, m_string.end() - 1, *c);
-      ++c;
-   }
+   // make this safe by treating str as utf8
+   *this = CsBasicString::fromUtf8(str, -1, a);
 }
 
 template <typename E, typename A>
 template <int N>
 CsBasicString<E, A>::CsBasicString(const char (&str)[N], const A &a)
-   : m_string(1, 0, a)
 {
 #if defined(Q_CC_MSVC)
  static_assert("¿"[0] == static_cast<char>(0xC2), "Compiler runtime encoding was not set to UTF-8");
 #endif
 
    // make this safe by treating str as utf8
-   *this = CsBasicString::fromUtf8(str, N-1);
+   *this = CsBasicString::fromUtf8(str, N-1, a);
 }
 
 template <typename E, typename A>
 template <typename T,  typename>
 CsBasicString<E, A>::CsBasicString(const T &str, size_type size, const A &a)
-   : m_string(1, 0, a)
 {
 #ifndef CS_STRING_ALLOW_UNSAFE
    static_assert(! std::is_same<E, E>::value, "Unsafe operations not allowed, unknown encoding for this operation");
 #endif
 
    // str is a const char *
-   if (str == nullptr) {
-      return;
-   }
-
-   for (size_type x = 0; x < size; ++x) {
-      E::insert(m_string, m_string.end() - 1, str[x]);
-   }
+   *this = CsBasicString::fromUtf8(str, size, a);
 }
 
 template <typename E, typename A>
 template <int N>
 CsBasicString<E, A>::CsBasicString(const char (&str)[N], size_type size, const A &a)
-   : m_string(1, 0, a)
 {
 #if defined(Q_CC_MSVC)
  static_assert("¿"[0] == static_cast<char>(0xC2), "Compiler runtime encoding was not set to UTF-8");
 #endif
 
-   // make this safe by treatiing str as utf8
-   *this = CsBasicString::fromUtf8(str, size);
+   // make this safe by treating str as utf8
+   *this = CsBasicString::fromUtf8(str, size, a);
 }
 
 template <typename E, typename A>
@@ -1047,7 +1028,7 @@ CsBasicString<E, A> &CsBasicString<E, A>::append(const T &str)
    }
 
    // make this safe by treating str as utf8
-   this->append(CsBasicString::fromUtf8(str, std::strlen(str)));
+   this->append(CsBasicString::fromUtf8(str));
 
    return *this;
 }
@@ -1405,7 +1386,7 @@ typename CsBasicString<E, A>::const_iterator CsBasicString<E, A>::find_fast(cons
    }
 
    // make this safe by treating str as utf8
-   return find_fast(CsBasicString::fromUtf8(str, std::strlen(str)), iter_begin);
+   return find_fast(CsBasicString::fromUtf8(str), iter_begin);
 }
 
 // for an array of chars
@@ -1622,7 +1603,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find(const T &str, 
    }
 
    // make this safe by treating str as utf8
-   return find(CsBasicString::fromUtf8(str, std::strlen(str)), indexStart);
+   return find(CsBasicString::fromUtf8(str), indexStart);
 }
 
 template <typename E, typename A>
@@ -1741,7 +1722,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_of(const
    }
 
    // make this safe by treating str as utf8
-   return find_first_of(CsBasicString::fromUtf8(str, std::strlen(str)), indexStart);
+   return find_first_of(CsBasicString::fromUtf8(str), indexStart);
 }
 
 template <typename E, typename A>
@@ -1839,7 +1820,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_of(const 
    }
 
    // make this safe by treating str as utf8
-   return find_last_of(CsBasicString::fromUtf8(str, std::strlen(str)), indexStart);
+   return find_last_of(CsBasicString::fromUtf8(str), indexStart);
 }
 
 template <typename E, typename A>
@@ -1985,7 +1966,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_first_not_of(c
    }
 
    // make this safe by treating str as utf8
-   return find_first_not_of(CsBasicString::fromUtf8(str, std::strlen(str)), indexStart);
+   return find_first_not_of(CsBasicString::fromUtf8(str), indexStart);
 }
 
 template <typename E, typename A>
@@ -2143,7 +2124,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::find_last_not_of(co
    }
 
    // make this safe by treating str as utf8
-   return find_last_not_of(CsBasicString::fromUtf8(str, std::strlen(str)), indexStart);
+   return find_last_not_of(CsBasicString::fromUtf8(str), indexStart);
 }
 
 template <typename E, typename A>
@@ -2303,7 +2284,7 @@ typename CsBasicString<E, A>::size_type CsBasicString<E, A>::rfind(const T &str,
    }
 
    // make this safe by treating str as utf8
-   return rfind(CsBasicString::fromUtf8(str, std::strlen(str)), indexStart);
+   return rfind(CsBasicString::fromUtf8(str), indexStart);
 }
 
 template <typename E, typename A>
@@ -2634,7 +2615,7 @@ CsBasicString<E, A> &CsBasicString<E, A>::insert(size_type indexStart, const T &
    }
 
    // make this safe by treating str as utf8
-   return insert(indexStart, CsBasicString::fromUtf8(str, std::strlen(str)));
+   return insert(indexStart, CsBasicString::fromUtf8(str));
 }
 
 template <typename E, typename A>
@@ -3045,7 +3026,7 @@ CsBasicString<E, A> &CsBasicString<E, A>::replace(size_type indexStart, size_typ
    // str is a const char *
 
    // make this safe by treating str as utf8
-   return replace(indexStart, count, CsBasicString::fromUtf8(str, std::strlen(str)));
+   return replace(indexStart, count, CsBasicString::fromUtf8(str));
 }
 
 template <typename E, typename A>
