@@ -13,9 +13,9 @@ as UTF-8 or UTF-16, is passed to the CsBasicString template. The following typed
 
 ### System Requirements
 
-To use CsString you will need a C++14 compiler and a C++14 standard library.
+To use CsString you will need a C++17 compiler and a C++17 standard library.
 
-Currently uses the Autotools build system for building and running the unit test suite. The library has been tested with
+Currently uses the CMake build system for building and running the unit test suite. The library has been tested with
 clang sanitizer and a major code review.
 
 ### Documentation
