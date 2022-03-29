@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 cmake_policy(VERSION 3.16..3.21)
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19.0")
+   # allows spaces in ctest names
+   cmake_policy(SET CMP0110 NEW)
+endif()
+
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20.0")
    # enable RTTI on MSVC
    cmake_policy(SET CMP0117 OLD)
@@ -94,6 +99,15 @@ else()
    set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS}    -Wl,--no-undefined")
    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-undefined")
+endif()
+
+# destination for cmake export files
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+   set(PKG_PREFIX "cmake/CsString")
+
+else()
+   set(PKG_PREFIX "${CMAKE_INSTALL_LIBDIR}/cmake/CsString")
+
 endif()
 
 # file locations for building
