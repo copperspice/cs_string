@@ -1,21 +1,20 @@
 add_library(CsString SHARED "")
+add_library(CsString::CsString ALIAS CsString)
 
-target_compile_definitions(
-   CsString
+target_compile_definitions(CsString
    PRIVATE
    -DBUILDING_LIB_CS_STRING
 )
 
-target_compile_features(
-   CsString
+target_compile_features(CsString
    PUBLIC
    cxx_std_17
 )
 
-target_include_directories(
-   CsString
+target_include_directories(CsString
    PUBLIC
    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_sources(CsString
@@ -42,7 +41,7 @@ install(
 install(
    FILES ${CS_STRING_INCLUDES}
    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-   COMPONENT Devel
+   COMPONENT CsString
 )
 
 install(

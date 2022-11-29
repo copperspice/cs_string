@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
-cmake_policy(VERSION 3.16..3.21)
+cmake_policy(VERSION 3.16..3.23)
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19.0")
    # allows spaces in ctest names
@@ -12,7 +12,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20.0")
    cmake_policy(SET CMP0117 OLD)
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 project(cs_string)
 
@@ -23,7 +23,7 @@ set(BUILD_MICRO "2")
 set(BUILD_COMPONENTS "cs_string")
 
 # catch2 set up
-option(BUILD_TESTS "Enables building the Catch2 Unit Tests" OFF)
+option(BUILD_TESTS "Enables building the Catch2 unit tests" OFF)
 
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
@@ -31,7 +31,7 @@ include(CheckIncludeFile)
 include(CheckIncludeFiles)
 include(CheckTypeSize)
 
-# file locations for installing
+# location for install or package
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
    include(GNUInstallDirs)
    set(CMAKE_INSTALL_RPATH "@executable_path")
@@ -110,18 +110,37 @@ else()
 
 endif()
 
+# catch2 set up
+if (BUILD_TESTS)
+   enable_testing()
+   add_subdirectory(test)
+endif()
+
+configure_file(
+   ${CMAKE_SOURCE_DIR}/cmake/CsStringConfig.cmake
+   ${CMAKE_BINARY_DIR}/CsStringConfig.cmake
+   @ONLY
+)
+
+configure_file(
+   ${CMAKE_SOURCE_DIR}/cmake/CsStringConfigVersion.cmake
+   ${CMAKE_BINARY_DIR}/CsStringConfigVersion.cmake
+   @ONLY
+)
+
+install(
+   FILES
+      ${CMAKE_BINARY_DIR}/CsStringConfig.cmake
+      ${CMAKE_BINARY_DIR}/CsStringConfigVersion.cmake
+   DESTINATION ${PKG_PREFIX}
+)
+
 # file locations for building
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(src/string.cmake)
-
-# catch2 set up
-if (BUILD_TESTS)
-   enable_testing()
-   add_subdirectory(test)
-endif()
 
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
    set(TARGETBITS 32)
@@ -134,3 +153,4 @@ message("CsString configured to run on:  ${CMAKE_SYSTEM_NAME} ${TARGETBITS} bit,
 message("CsString will be built in:      ${CMAKE_BINARY_DIR}")
 message("CsString will be installed in:  ${CMAKE_INSTALL_PREFIX}")
 message("\n")
+
