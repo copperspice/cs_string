@@ -22,15 +22,18 @@ clang sanitizer and a major code review.
 
 Class level documentation for CsString is available on the CopperSpice website:
 
-www.copperspice.com/docs/cs_string/index.html
+https://www.copperspice.com/docs/cs_string/index.html
 
 
 ### Presentations
 
-Multiple videos discussing Unicode and strings can be found on the following pages:
+Our YouTube channel contains over 65 videos about C++, programming fundamentals, Unicode/Strings, multithreading,
+graphics, CopperSpice, DoxyPress, and other software development topics.
 
-www.youtube.com/copperspice <br>
-www.copperspice.com/presentations.html
+https://www.youtube.com/copperspice
+Links to additional vidoes can be found on our website.
+
+https://www.copperspice.com/presentations.html
 
 
 ### Authors / Contributors
@@ -41,11 +44,17 @@ www.copperspice.com/presentations.html
 
 ### License
 
-This library is released under the BSD 2-clause license. For more information refer to the LICENSE file provided with this
-project.
+This library is released under the BSD 2-clause license. For more information refer to the LICENSE file provided with
+this project.
 
 
 ### References
 
-* Website: www.copperspice.com
-* Email:   info@copperspice.com
+* Website:  https://www.copperspice.com
+* Twitter:  https://twitter.com/copperspice_cpp
+* Email:    info@copperspice.com
+
+* Github:   https://github.com/copperspice
+
+* Forum:    https://forum.copperspice.com
+* Journal:  https://journal.copperspice.com
