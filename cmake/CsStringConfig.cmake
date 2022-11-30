@@ -27,7 +27,9 @@ get_filename_component(CsString_PREFIX ${CsString_CMAKE_DIR}/ ABSOLUTE)
 # library dependencies (contains definitions for imported targets)
 include("${CsString_CMAKE_DIR}/CsStringLibraryTargets.cmake")
 
-# imported targets  INCLUDE_DIRECTORIES
-get_target_property(CsString_INCLUDES  CsString INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(CsString_LIBRARIES CsString LOCATION)
+# imported targets INCLUDE_DIRECTORIES
+get_target_property(CsString_INCLUDES  CsString::CsString INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(CsString_LIBRARIES CsString::CsString LOCATION)
 
+# export include base dir, imported in other projects
+set(CsString_INCLUDE_DIR  "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR")

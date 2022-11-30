@@ -46,6 +46,7 @@ install(
 
 install(
    EXPORT CsStringLibraryTargets
+   NAMESPACE CsString::
    FILE CsStringLibraryTargets.cmake
    DESTINATION ${PKG_PREFIX}
 )
