@@ -8,13 +8,19 @@ set_target_properties(CsStringTest
 )
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
-   set_target_properties(CsStringTest
-      PROPERTIES
+   if (MSVC)
+      # CopperSpice must be compiled with C++20 in order to run the unit test for C++20
 
-      # only a request for C++20
-      CXX_STANDARD_REQUIRED OFF
-      CXX_STANDARD 20
-   )
+   else()
+      set_target_properties(CsStringTest
+         PROPERTIES
+
+         # only a request for C++20
+         CXX_STANDARD_REQUIRED OFF
+         CXX_STANDARD 20
+      )
+
+   endif()
 endif()
 
 file(WRITE ${CMAKE_BINARY_DIR}/bin/test/run_test.bat
@@ -35,7 +41,9 @@ target_sources(CsStringTest
    PRIVATE
    ${CMAKE_CURRENT_SOURCE_DIR}/cs_catch2.h
 
-   ${CMAKE_CURRENT_SOURCE_DIR}/cs_string.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/cs_char.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/cs_string8.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/cs_string16.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp
 )
 
