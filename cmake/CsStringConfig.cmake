@@ -32,4 +32,4 @@ get_target_property(CsString_INCLUDES  CsString::CsString INTERFACE_INCLUDE_DIRE
 get_target_property(CsString_LIBRARIES CsString::CsString LOCATION)
 
 # export include base dir, imported in other projects
-set(CsString_INCLUDE_DIR  "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR")
+set(CsString_INCLUDE_DIR  "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@")
