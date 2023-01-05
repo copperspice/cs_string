@@ -1,6 +1,7 @@
+# ***********************************************************************
 #
-# Copyright (c) 2017-2022 Barbara Geller
-# Copyright (c) 2017-2022 Ansel Sermersheim
+# Copyright (c) 2017-2023 Barbara Geller
+# Copyright (c) 2017-2023 Ansel Sermersheim
 #
 # This file is part of CsString.
 #
@@ -13,6 +14,7 @@
 #
 # https://opensource.org/licenses/BSD-2-Clause
 #
+# ***********************************************************************
 
 set(CsString_VERSION_MAJOR "@BUILD_MAJOR@" PARENT_SCOPE)
 set(CsString_VERSION_MINOR "@BUILD_MINOR@" PARENT_SCOPE)
