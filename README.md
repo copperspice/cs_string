@@ -31,7 +31,7 @@ Our YouTube channel contains over 65 videos about C++, programming fundamentals,
 graphics, CopperSpice, DoxyPress, and other software development topics.
 
 https://www.youtube.com/copperspice
-Links to additional vidoes can be found on our website.
+Links to additional videos can be found on our website.
 
 https://www.copperspice.com/presentations.html
 
