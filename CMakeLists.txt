@@ -17,8 +17,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 project(cs_string)
 
 set(BUILD_MAJOR "1")
-set(BUILD_MINOR "3")
-set(BUILD_MICRO "2")
+set(BUILD_MINOR "4")
+set(BUILD_MICRO "0")
 
 set(BUILD_COMPONENTS "cs_string")
 
