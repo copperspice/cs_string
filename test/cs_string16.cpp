@@ -19,6 +19,7 @@
 #define CS_STRING_ALLOW_UNSAFE
 
 #include <cs_string.h>
+#include <cs_char.h>
 
 #include <cs_catch2.h>
 
@@ -213,13 +214,42 @@ TEST_CASE("CsString_utf16 find_b", "[cs_string16]")
    }
 }
 
-TEST_CASE("CsString_utf16 insert", "[cs_string16]")
+TEST_CASE("CsString_utf16 insert_uchar", "[cs_string16]")
 {
    CsString::CsString_utf16 str = "On a clear day you can see forever";
 
    str.insert(5, 2, UCHAR('↵'));
 
    REQUIRE(str == "On a ↵↵clear day you can see forever");
+}
+
+TEST_CASE("CsString_utf16 insert_str", "[cs_string16]")
+{
+   CsString::CsString_utf16 str1 = "Sunday Tuesday";
+   CsString::CsString_utf16 str2 = "Monday ";
+
+   SECTION ("insert_a") {
+      str1.insert(7, str2);
+      REQUIRE(str1 == "Sunday Monday Tuesday");
+   }
+
+   SECTION ("insert_b") {
+      auto iter = str1.insert(str1.begin() + 7, str2);
+      REQUIRE(str1 == "Sunday Monday Tuesday");
+      REQUIRE(*iter == 'M');
+   }
+
+   SECTION ("insert_c") {
+      auto iter = str1.insert(str1.begin() + 7, str2.begin(), str2.end());
+      REQUIRE(str1 == "Sunday Monday Tuesday");
+      REQUIRE(*iter == 'M');
+   }
+
+   SECTION ("insert_d") {
+      auto iter = str1.insert(str1.begin() + 6, CsString::CsChar('!'));
+      REQUIRE(str1 == "Sunday! Tuesday");
+      REQUIRE(*iter == '!');
+   }
 }
 
 TEST_CASE("CsString_utf16 iterator", "[cs_string16]")
