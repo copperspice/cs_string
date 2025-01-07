@@ -8,7 +8,7 @@ target_compile_definitions(CsString
 
 target_compile_features(CsString
    PUBLIC
-   cxx_std_17
+   cxx_std_20
 )
 
 target_include_directories(CsString
