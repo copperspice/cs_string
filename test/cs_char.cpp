@@ -41,13 +41,8 @@ TEST_CASE("CsChar u8_constructor", "[cs_char]")
    REQUIRE(ch == u8'b');
    REQUIRE(ch != u8'c');
 
-#if defined(__cpp_char8_t)
-   // c++20
-
    REQUIRE(u8'b' == ch);
    REQUIRE(u8'c' != ch);
-#endif
-
 }
 
 TEST_CASE("QChar u_constructor", "[cs_char]")
@@ -58,12 +53,8 @@ TEST_CASE("QChar u_constructor", "[cs_char]")
    REQUIRE(ch == u'b');
    REQUIRE(ch != u'c');
 
-#if defined(__cpp_char8_t)
-   // c++20
-
    REQUIRE(u'b' == ch);
    REQUIRE(u'c' != ch);
-#endif
 }
 
 TEST_CASE("QChar U_constructor", "[cs_char]")
@@ -74,12 +65,8 @@ TEST_CASE("QChar U_constructor", "[cs_char]")
    REQUIRE(ch == U'b');
    REQUIRE(ch != U'c');
 
-#if defined(__cpp_char8_t)
-   // c++20
-
    REQUIRE(U'b' == ch);
    REQUIRE(U'c' != ch);
-#endif
 }
 
 TEST_CASE("QChar empty", "[cs_char]")

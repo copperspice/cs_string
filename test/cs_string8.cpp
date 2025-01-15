@@ -52,6 +52,14 @@ TEST_CASE("CsString_utf8 u8_append", "[cs_string8]")
    REQUIRE(str == u8"A wacky fox and sizeable pig went to lunch");
 }
 
+TEST_CASE("CsString_utf8 u32_append", "[cs_string8]")
+{
+   CsString::CsString_utf8 str = U"A wacky fox and sizeable pig";
+
+   str.append(U" went to lunch");
+
+   REQUIRE(str == U"A wacky fox and sizeable pig went to lunch");
+}
 TEST_CASE("CsString_utf8 begin_end", "[cs_string8]")
 {
    CsString::CsString_utf8 str = "On a clear day you can see forever";
@@ -114,6 +122,28 @@ TEST_CASE("CsString_utf8 u8_constructor", "[cs_string8]")
    REQUIRE(str == u8"On a clear day you can see forever");
 }
 
+TEST_CASE("CsString_utf8 u32_constructor", "[cs_string8]")
+{
+   {
+      CsString::CsString_utf8 str = U"On a clear day you can see forever";
+      REQUIRE(str == U"On a clear day you can see forever");
+   }
+
+   {
+      CsString::CsString_utf8 str(U"On a clear day you can see forever", 10);
+
+      REQUIRE(str.size() == 10);
+      REQUIRE(str == U"On a clear");
+   }
+}
+TEST_CASE("CsString_utf8 char8_t_constructor", "[cs_string]")
+{
+   const char8_t *data = u8"A wacky fox and sizeable pig";
+
+   CsString::CsString_utf8 str = data;
+
+   REQUIRE(str == "A wacky fox and sizeable pig");
+}
 TEST_CASE("CsString_utf8 empty", "[cs_string8]")
 {
    CsString::CsString_utf8 str;
@@ -296,6 +326,13 @@ TEST_CASE("CsString_utf8 iterator", "[cs_string8]")
    REQUIRE(eraseCnt == 9);
 }
 
+TEST_CASE("sString_utf8 length", "[cs_string8]")
+{
+   CsString::CsString_utf8 str = "A wacky fox and sizeable pig jumped halfway over a blue moon";
+
+   REQUIRE(str.length() == 60);
+   REQUIRE(str.size() == 60);
+}
 TEST_CASE("CsString_utf8 u8_length", "[cs_string8]")
 {
    CsString::CsString_utf8 str = u8"!ä";
@@ -307,6 +344,24 @@ TEST_CASE("CsString_utf8 u8_length", "[cs_string8]")
    REQUIRE(str[1].unicode() == char32_t(228));
 }
 
+TEST_CASE("CsString_utf8 u32_length", "[cs_string8]")
+{
+   CsString::CsString_utf8 str = U"!ä";
+
+   REQUIRE(str.length() ==  2);
+
+   REQUIRE(str[0].unicode() == char32_t(33));
+   REQUIRE(str[1].unicode() == char32_t(228));
+}
+TEST_CASE("CsString_utf8 prefix", "[cs_string8]")
+{
+   REQUIRE(std::is_same_v<char,     decltype(u8'a')> == false);
+   REQUIRE(std::is_same_v<char8_t,  decltype(u8'a')> == true);
+   REQUIRE(std::is_same_v<char16_t, decltype(u8'a')> == false);
+
+   REQUIRE(std::is_same_v<const char8_t(&)[15], decltype(u8"On a clear day")> == true);
+   REQUIRE(std::is_same_v<const char(&)[15], decltype(u8"On a clear day")> == false);
+}
 TEST_CASE("CsString_utf8 replace", "[cs_string8]")
 {
    CsString::CsString_utf8 str = "On a clear day you can see forever";
@@ -398,77 +453,3 @@ TEST_CASE("CsString_utf8 u8_various", "[cs_string8]")
       REQUIRE(str == "GIN");
    }
 }
-
-TEST_CASE("CsString_utf8 prefix", "[cs_string8]")
-{
-
-#if defined(__cpp_char8_t)
-   // c++20
-
-   REQUIRE(std::is_same_v<char8_t,  decltype(u8'a')> == true);
-   REQUIRE(std::is_same_v<char16_t, decltype(u8'a')> == false);
-
-   REQUIRE(std::is_same_v<const char8_t(&)[15], decltype(u8"On a clear day")> == true);
-
-#else
-   REQUIRE(std::is_same_v<char,     decltype(u8'a')> == true);
-   REQUIRE(std::is_same_v<char16_t, decltype(u8'a')> == false);
-
-   REQUIRE(std::is_same_v<const char(&)[15], decltype(u8"On a clear day")> == true);
-#endif
-
-}
-
-// C++20 only
-TEST_CASE("CsString_utf8 char8_t_constructor", "[cs_string8]")
-{
-#if defined(__cpp_char8_t)
-   printf("\nCsString C++20 char8_t checks enabled\n");
-
-   const char8_t *data = u8"A wacky fox and sizeable pig";
-
-   CsString::CsString_utf8 str = data;
-
-   REQUIRE(str == "A wacky fox and sizeable pig");
-
-#else
-   printf("\nCsString C++20 char8_t checks omitted\n");
-#endif
-}
-
-// utf-32
-TEST_CASE("CsString_utf8 u32_append", "[cs_string8]")
-{
-   CsString::CsString_utf8 str = U"A wacky fox and sizeable pig";
-
-   str.append(U" went to lunch");
-
-   REQUIRE(str == U"A wacky fox and sizeable pig went to lunch");
-}
-
-TEST_CASE("CsString_utf8 u32_length", "[cs_string8]")
-{
-   CsString::CsString_utf8 str = U"!ä";
-
-   REQUIRE(str.length() ==  2);
-
-   REQUIRE(str[0].unicode() == char32_t(33));
-   REQUIRE(str[1].unicode() == char32_t(228));
-}
-
-TEST_CASE("CsString_utf8 u32_constructor", "[cs_string8]")
-{
-   {
-      CsString::CsString_utf8 str = U"On a clear day you can see forever";
-      REQUIRE(str == U"On a clear day you can see forever");
-   }
-
-   {
-      CsString::CsString_utf8 str(U"On a clear day you can see forever", 10);
-
-      REQUIRE(str.size() == 10);
-      REQUIRE(str == U"On a clear");
-   }
-}
-
-

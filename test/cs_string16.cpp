@@ -34,16 +34,51 @@ TEST_CASE("CsString_utf16 traits", "[cs_string16]")
    REQUIRE(std::has_virtual_destructor_v<CsString::CsString_utf16> == false);
 }
 
+TEST_CASE("CsString_utf16 char8_t_constructor", "[cs_string16]")
+{
+   const char8_t *data = u8"A wacky fox and sizeable pig";
+
+   CsString::CsString_utf16 str = data;
+
+   REQUIRE(str == "A wacky fox and sizeable pig");
+}
+TEST_CASE("CsString_utf16 u8_constructor", "[cs_string16]")
+{
+   CsString::CsString_utf16 str = u8"On a clear day you can see forever";
+   REQUIRE(str == "On a clear day you can see forever");
+}
+
+TEST_CASE("CsString_utf16 u16_constructor", "[cs_string16]")
+{
+   CsString::CsString_utf16 str = u"On a clear day you can see forever";
+
+   REQUIRE(str == u"On a clear day you can see forever");
+}
+TEST_CASE("CsString_utf16 u32_constructor", "[cs_string16]")
+{
+   CsString::CsString_utf16  str = U"On a clear day you can see forever";
+
+   REQUIRE(str == U"On a clear day you can see forever");
+}
 TEST_CASE("CsString_utf16 append", "[cs_string16]")
 {
-  CsString::CsString_utf16 str = "ABCD";
+   CsString::CsString_utf16 str = "ABCD";
 
    str.append(UCHAR('𝅘𝅥𝅮'));
 
    REQUIRE(str == u"ABCD𝅘𝅥𝅮");
 }
 
-TEST_CASE("CsString_utf16 u_append", "[cs_string16]")
+TEST_CASE("CsString_utf16 u8_append", "[cs_string16]")
+{
+   CsString::CsString_utf16 str = u8"A wacky fox and sizeable pig";
+
+   str.append(u8" went to lunch");
+
+   REQUIRE(str == u8"A wacky fox and sizeable pig went to lunch");
+}
+
+TEST_CASE("CsString_utf16 u16_append", "[cs_string16]")
 {
    CsString::CsString_utf16 str = u"A wacky fox and sizeable pig";
 
@@ -52,6 +87,14 @@ TEST_CASE("CsString_utf16 u_append", "[cs_string16]")
    REQUIRE(str == u"A wacky fox and sizeable pig went to lunch");
 }
 
+TEST_CASE("CsString_utf16 u32_append", "[cs_string16]")
+{
+   CsString::CsString_utf16 str = U"A wacky fox and sizeable pig";
+
+   str.append(U" went to lunch");
+
+   REQUIRE(str == U"A wacky fox and sizeable pig went to lunch");
+}
 TEST_CASE("CsString_utf16 begin_end", "[cs_string16]")
 {
    CsString::CsString_utf16 str = "On a clear day you can see forever";
@@ -108,18 +151,8 @@ TEST_CASE("CsString_utf16 comparison", "[cs_string16]")
    REQUIRE(str1 >= str2);
 }
 
-TEST_CASE("CsString_utf16 constructor", "[cs_string16]")
-{
-   CsString::CsString_utf16 str = u8"On a clear day you can see forever";
-   REQUIRE(str == "On a clear day you can see forever");
-}
 
-TEST_CASE("CsString_utf16 u_constructor", "[cs_string16]")
-{
-   CsString::CsString_utf16 str = u"On a clear day you can see forever";
 
-   REQUIRE(str == u"On a clear day you can see forever");
-}
 
 TEST_CASE("CsString_utf16 empty", "[cs_string16]")
 {
@@ -235,12 +268,14 @@ TEST_CASE("CsString_utf16 insert_str", "[cs_string16]")
 
    SECTION ("insert_b") {
       auto iter = str1.insert(str1.begin() + 7, str2);
+
       REQUIRE(str1 == "Sunday Monday Tuesday");
       REQUIRE(*iter == 'M');
    }
 
    SECTION ("insert_c") {
       auto iter = str1.insert(str1.begin() + 7, str2.begin(), str2.end());
+
       REQUIRE(str1 == "Sunday Monday Tuesday");
       REQUIRE(*iter == 'M');
    }
@@ -303,7 +338,7 @@ TEST_CASE("CsString_utf16 iterator", "[cs_string16]")
    REQUIRE(eraseCnt == 9);
 }
 
-TEST_CASE("CsString_utf16 length", "[cs_string16]")
+TEST_CASE("CsString_utf16 u8_length", "[cs_string16]")
 {
    CsString::CsString_utf16 str = u8"!ä";
 
@@ -325,6 +360,15 @@ TEST_CASE("CsString_utf16 u_length", "[cs_string16]")
    REQUIRE(str[1].unicode() == char32_t(228));
 }
 
+TEST_CASE("CsString_utf16 u32_length", "[cs_string16]")
+{
+   CsString::CsString_utf16 str = U"!ä";
+
+   REQUIRE(str.length() ==  2);
+
+   REQUIRE(str[0].unicode() == char32_t(33));
+   REQUIRE(str[1].unicode() == char32_t(228));
+}
 TEST_CASE("CsString_utf16 replace", "[cs_string16]")
 {
    CsString::CsString_utf16 str = "On a clear day you can see forever";
@@ -366,7 +410,7 @@ TEST_CASE("CsString_utf16 size", "[cs_string16]")
    REQUIRE(str.length() == 5);
 }
 
-TEST_CASE("CsString_utf16 storage_iterators", "[cs_string16]")
+TEST_CASE("CsString_utf16 u8_storage_iterators", "[cs_string16]")
 {
    CsString::CsString_utf16 str;
 
