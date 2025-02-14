@@ -60,6 +60,7 @@ TEST_CASE("CsString_utf8 u32_append", "[cs_string8]")
 
    REQUIRE(str == U"A wacky fox and sizeable pig went to lunch");
 }
+
 TEST_CASE("CsString_utf8 begin_end", "[cs_string8]")
 {
    CsString::CsString_utf8 str = "On a clear day you can see forever";
@@ -86,6 +87,15 @@ TEST_CASE("CsString_utf8 begin_end", "[cs_string8]")
 
       REQUIRE(*iterBegin == 'O');
       REQUIRE(*(iterEnd - 1) == 'r');
+   }
+
+   {
+      CsString::CsString::const_iterator iter = str.begin();
+
+      REQUIRE(iter == str.cbegin());
+      REQUIRE(iter != str.cend());
+
+      REQUIRE(iter == str.begin());
    }
 }
 
@@ -136,6 +146,7 @@ TEST_CASE("CsString_utf8 u32_constructor", "[cs_string8]")
       REQUIRE(str == U"On a clear");
    }
 }
+
 TEST_CASE("CsString_utf8 char8_t_constructor", "[cs_string]")
 {
    const char8_t *data = u8"A wacky fox and sizeable pig";
@@ -144,6 +155,7 @@ TEST_CASE("CsString_utf8 char8_t_constructor", "[cs_string]")
 
    REQUIRE(str == "A wacky fox and sizeable pig");
 }
+
 TEST_CASE("CsString_utf8 empty", "[cs_string8]")
 {
    CsString::CsString_utf8 str;
@@ -326,13 +338,14 @@ TEST_CASE("CsString_utf8 iterator", "[cs_string8]")
    REQUIRE(eraseCnt == 9);
 }
 
-TEST_CASE("sString_utf8 length", "[cs_string8]")
+TEST_CASE("CsString_utf8 length", "[cs_string8]")
 {
    CsString::CsString_utf8 str = "A wacky fox and sizeable pig jumped halfway over a blue moon";
 
    REQUIRE(str.length() == 60);
    REQUIRE(str.size() == 60);
 }
+
 TEST_CASE("CsString_utf8 u8_length", "[cs_string8]")
 {
    CsString::CsString_utf8 str = u8"!ä";
@@ -353,6 +366,7 @@ TEST_CASE("CsString_utf8 u32_length", "[cs_string8]")
    REQUIRE(str[0].unicode() == char32_t(33));
    REQUIRE(str[1].unicode() == char32_t(228));
 }
+
 TEST_CASE("CsString_utf8 prefix", "[cs_string8]")
 {
    REQUIRE(std::is_same_v<char,     decltype(u8'a')> == false);
@@ -362,6 +376,7 @@ TEST_CASE("CsString_utf8 prefix", "[cs_string8]")
    REQUIRE(std::is_same_v<const char8_t(&)[15], decltype(u8"On a clear day")> == true);
    REQUIRE(std::is_same_v<const char(&)[15], decltype(u8"On a clear day")> == false);
 }
+
 TEST_CASE("CsString_utf8 replace", "[cs_string8]")
 {
    CsString::CsString_utf8 str = "On a clear day you can see forever";

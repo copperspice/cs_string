@@ -42,6 +42,7 @@ TEST_CASE("CsString_utf16 char8_t_constructor", "[cs_string16]")
 
    REQUIRE(str == "A wacky fox and sizeable pig");
 }
+
 TEST_CASE("CsString_utf16 u8_constructor", "[cs_string16]")
 {
    CsString::CsString_utf16 str = u8"On a clear day you can see forever";
@@ -54,12 +55,14 @@ TEST_CASE("CsString_utf16 u16_constructor", "[cs_string16]")
 
    REQUIRE(str == u"On a clear day you can see forever");
 }
+
 TEST_CASE("CsString_utf16 u32_constructor", "[cs_string16]")
 {
    CsString::CsString_utf16  str = U"On a clear day you can see forever";
 
    REQUIRE(str == U"On a clear day you can see forever");
 }
+
 TEST_CASE("CsString_utf16 append", "[cs_string16]")
 {
    CsString::CsString_utf16 str = "ABCD";
@@ -95,6 +98,7 @@ TEST_CASE("CsString_utf16 u32_append", "[cs_string16]")
 
    REQUIRE(str == U"A wacky fox and sizeable pig went to lunch");
 }
+
 TEST_CASE("CsString_utf16 begin_end", "[cs_string16]")
 {
    CsString::CsString_utf16 str = "On a clear day you can see forever";
@@ -116,11 +120,12 @@ TEST_CASE("CsString_utf16 begin_end", "[cs_string16]")
    }
 
    {
-      auto iterBegin = str.cbegin();
-      auto iterEnd   = str.cend();
+      CsString::CsString_utf16::const_iterator iter = str.begin();
 
-      REQUIRE(*iterBegin == 'O');
-      REQUIRE(*(iterEnd - 1) == 'r');
+      REQUIRE(iter == str.cbegin());
+      REQUIRE(iter != str.cend());
+
+      REQUIRE(iter == str.begin());
    }
 }
 
@@ -150,9 +155,6 @@ TEST_CASE("CsString_utf16 comparison", "[cs_string16]")
    REQUIRE(! (str2 >= str1));
    REQUIRE(str1 >= str2);
 }
-
-
-
 
 TEST_CASE("CsString_utf16 empty", "[cs_string16]")
 {
@@ -369,6 +371,7 @@ TEST_CASE("CsString_utf16 u32_length", "[cs_string16]")
    REQUIRE(str[0].unicode() == char32_t(33));
    REQUIRE(str[1].unicode() == char32_t(228));
 }
+
 TEST_CASE("CsString_utf16 replace", "[cs_string16]")
 {
    CsString::CsString_utf16 str = "On a clear day you can see forever";
